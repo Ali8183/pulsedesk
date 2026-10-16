@@ -3,15 +3,16 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
-  root "tickets#index"
+  # 1. Giriş Sayfası (Landing Page)
+  root "home#index"
 
-  # Müşteri Dış Portalı (Telefondan veya dışarıdan talep açma / takip etme)
+  # 2. Müşteri Alanı (Müşteri Destek Portalı)
   get  "portal", to: "portal#new", as: :portal
   post "portal", to: "portal#create"
   get  "portal/tickets/:id", to: "portal#show", as: :portal_ticket
   post "portal/tickets/:id/reply", to: "portal#reply", as: :portal_reply
 
-  # Destek Ekibi & Temsilci Masası
+  # 3. Temsilci Alanı (Destek Ekibi & Temsilci Masası)
   resources :tickets do
     member do
       patch :transition

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr">
   <head>
-    <title><%= content_for(:title) || "PulseDesk | Müşteri Destek & Biletleme Platformu" %></title>
+    <title><%= content_for(:title) || "PulseDesk | Kurumsal Müşteri Destek & Akıllı SLA Platformu" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="PulseDesk, kurumsal biletleme ve akıllı SLA yönetim platformudur.">
     <%= csrf_meta_tags %>
@@ -14,7 +14,7 @@
 
   <body>
     <header class="navbar">
-      <div style="display: flex; align-items: center; gap: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
         <a href="/" class="nav-brand">
           <div class="brand-icon-box">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -24,24 +24,57 @@
           <div>
             <div class="brand-name">PulseDesk</div>
           </div>
-          <span class="brand-tag">Kurumsal SLA Masası</span>
+          <% if controller_name == 'portal' %>
+            <span class="brand-tag" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">Müşteri Yardım Merkezi</span>
+          <% elsif controller_name == 'tickets' %>
+            <span class="brand-tag" style="background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe;">Temsilci Masası</span>
+          <% else %>
+            <span class="brand-tag">Kurumsal Destek Platformu</span>
+          <% end %>
         </a>
       </div>
 
       <nav class="nav-links">
-        <a href="<%= tickets_path %>" class="nav-link <%= 'active' if (current_page?(tickets_path) || current_page?(root_path)) && params[:filter].blank? && controller_name == 'tickets' %>">
-          💻 Temsilci Masası
-        </a>
-        <a href="<%= portal_path %>" class="nav-link <%= 'active' if controller_name == 'portal' %>" style="color: #2563eb; font-weight: 600; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
-          📱 Müşteri Portalı (Dışarıdan Talep Aç)
-        </a>
-        <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
-          SLA Alarmları
-        </a>
-        <span class="live-indicator">
-          <span class="live-dot"></span>
-          Canlı Sistem
-        </span>
+        <% if controller_name == 'portal' %>
+          <!-- MÜŞTERİ PORTALINDA GÖRÜNEN MENÜ -->
+          <a href="/" class="nav-link">
+            ← Ana Sayfa
+          </a>
+          <a href="<%= portal_path %>" class="btn btn-primary btn-sm">
+            + Yeni Talep Aç
+          </a>
+          <a href="<%= tickets_path %>" class="nav-link" style="color: var(--text-muted); font-size: 0.8rem;">
+            Temsilci Paneli ↗
+          </a>
+
+        <% elsif controller_name == 'tickets' %>
+          <!-- TEMSİLCİ MASASINDA GÖRÜNEN MENÜ -->
+          <a href="<%= tickets_path %>" class="nav-link <%= 'active' if params[:filter].blank? %>">
+            Tüm Talepler
+          </a>
+          <a href="<%= tickets_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
+            Açık Kuyruk
+          </a>
+          <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
+            SLA Alarmları
+          </a>
+          <a href="<%= portal_path %>" target="_blank" class="nav-link" style="color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 600;">
+            📱 Müşteri Olarak Test Et ↗
+          </a>
+          <span class="live-indicator">
+            <span class="live-dot"></span>
+            Canlı Sistem
+          </span>
+
+        <% else %>
+          <!-- ANA GİRİŞ SAYFASINDA (LANDING PAGE) GÖRÜNEN MENÜ -->
+          <a href="<%= portal_path %>" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+            Müşteri Girişi (Talep Aç)
+          </a>
+          <a href="<%= tickets_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
+            Temsilci Masasına Gir →
+          </a>
+        <% end %>
       </nav>
     </header>
 
@@ -70,7 +103,7 @@
           <strong>PulseDesk</strong> — Fortune 500 Ölçeğinde Destek & Akıllı SLA Biletleme Platformu
         </div>
         <div>
-          Nezaket Koruması (Gratitude Guard) & Canlı Müşteri Portalı Devrede
+          Müşteri Portalı ve Temsilci Masası Ayrı Olarak Çalışmaktadır
         </div>
       </div>
     </footer>
