@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="tr">
   <head>
-    <title><%= content_for(:title) || "PulseDesk | Kurumsal Müşteri Destek & Biletleme Platformu" %></title>
+    <title><%= content_for(:title) || "PulseDesk | Müşteri Destek & Biletleme Platformu" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="PulseDesk, Fortune 500 ölçeğinde müşteri biletleme ve akıllı SLA yönetim platformudur.">
+    <meta name="description" content="PulseDesk, kurumsal biletleme ve akıllı SLA yönetim platformudur.">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -14,21 +14,36 @@
 
   <body>
     <header class="navbar">
-      <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1.25rem;">
         <a href="/" class="nav-brand">
-          <div class="brand-icon">⚡</div>
-          <span>PulseDesk</span>
-          <span class="brand-badge">SLA & Gratitude Guard Edition</span>
+          <div class="brand-icon-box">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-name">PulseDesk</div>
+          </div>
+          <span class="brand-tag">Destek Masası</span>
         </a>
       </div>
 
       <nav class="nav-links">
-        <a href="<%= tickets_path %>" class="nav-link <%= 'active' if current_page?(tickets_path) || current_page?(root_path) %>">Talepler Paneli</a>
-        <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link" style="color: #f87171;">SLA Alarmları</a>
-        <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">+ Yeni Talep Aç</a>
-        <span style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: #34d399; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
-          <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
-          Canlı / Aort Dilimi Aktif
+        <a href="<%= tickets_path %>" class="nav-link <%= 'active' if (current_page?(tickets_path) || current_page?(root_path)) && params[:filter].blank? %>">
+          Tüm Talepler
+        </a>
+        <a href="<%= tickets_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
+          Açık Kuyruk
+        </a>
+        <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
+          SLA Alarmları
+        </a>
+        <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
+          + Yeni Talep
+        </a>
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          Canlı Sistem
         </span>
       </nav>
     </header>
@@ -53,12 +68,12 @@
     </main>
 
     <footer class="footer">
-      <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div class="footer-inner">
         <div>
-          <strong>PulseDesk</strong> — Fortune 500 Ölçeğinde Ruby on Rails 8 Biletleme Aort Dilimi.
+          <strong>PulseDesk</strong> — Kurumsal Müşteri Destek & Akıllı SLA Motoru
         </div>
-        <div style="color: var(--text-dim);">
-          100 Puanlık Özellik: <strong>Gratitude Guard (Akıllı Nezaket Koruması)</strong> Entegre Edilmiştir.
+        <div>
+          Akıllı Nezaket Koruması (Gratitude Guard) devrede
         </div>
       </div>
     </footer>
