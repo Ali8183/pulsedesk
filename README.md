@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 > **GitHub Repo:** [https://github.com/Ali8183/pulsedesk](https://github.com/Ali8183/pulsedesk)  
-> **Canlı Uygulama URL:** [https://pulsedesk.onrender.com](https://pulsedesk.onrender.com) *(Render Deploy Linki)*  
+> **Canlı Uygulama URL:** [https://pulsedesk-8tji.onrender.com](https://pulsedesk-8tji.onrender.com)  
 > **İlham Kaynağı Orijinal SaaS:** Zendesk (Müşteri Destek & Kurumsal Biletleme Platformu)  
 > **Geliştirici:** Bireysel Öğrenci Projesi (Ruby on Rails 8+)
 
