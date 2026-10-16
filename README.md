@@ -1,10 +1,11 @@
 # PulseDesk ⚡
 
-![CI Status](https://github.com/USERNAME/REPO_NAME/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/Ali8183/pulsedesk/actions/workflows/ci.yml/badge.svg)
 ![Ruby Version](https://img.shields.io/badge/Ruby-3.3.12-red.svg)
 ![Rails Version](https://img.shields.io/badge/Rails-8.1.4-CC0000.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
+> **GitHub Repo:** [https://github.com/Ali8183/pulsedesk](https://github.com/Ali8183/pulsedesk)  
 > **Canlı Uygulama URL:** [https://pulsedesk.onrender.com](https://pulsedesk.onrender.com) *(Render Deploy Linki)*  
 > **İlham Kaynağı Orijinal SaaS:** Zendesk (Müşteri Destek & Kurumsal Biletleme Platformu)  
 > **Geliştirici:** Bireysel Öğrenci Projesi (Ruby on Rails 8+)
