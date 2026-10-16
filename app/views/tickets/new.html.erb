@@ -1,0 +1,74 @@
+<div style="max-width: 760px; margin: 0 auto;">
+  <div style="margin-bottom: 1.5rem;">
+    <a href="<%= tickets_path %>" style="color: var(--text-dim); text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 0.5rem;">
+      ← Talepler Listesine Dön
+    </a>
+    <h1 style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main);">
+      Yeni Müşteri Destek Talebi Aç
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.92rem;">
+      Talebin önceliğine göre sistem otomatik SLA çözüm süresi atayacaktır.
+    </p>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <%= form_with model: @ticket, local: true do |f| %>
+      <% if @ticket.errors.any? %>
+        <div class="flash-alert flash-alert-danger" style="margin-bottom: 1.5rem;">
+          <div>
+            <strong>Lütfen hataları düzeltin:</strong>
+            <ul style="margin-top: 0.5rem; padding-left: 1.25rem;">
+              <% @ticket.errors.full_messages.each do |msg| %>
+                <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :title, "Destek Talebi Başlığı *", class: "form-label" %>
+        <%= f.text_field :title, class: "form-control", placeholder: "Örn: Ödeme ekranında 500 hatası alıyorum", required: true %>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <%= f.label :customer_name, "Adınız Soyadınız *", class: "form-label" %>
+          <%= f.text_field :customer_name, class: "form-control", placeholder: "Örn: Burak Yılmaz", required: true %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :customer_email, "E-Posta Adresiniz *", class: "form-label" %>
+          <%= f.email_field :customer_email, class: "form-control", placeholder: "burak@example.com", required: true %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :priority, "Öncelik Derecesi (SLA Süresini Belirler) *", class: "form-label" %>
+        <%= f.select :priority, [
+          ["⚡ Acil (2 Saat SLA Çözüm Hedefi)", "urgent"],
+          ["🔴 Yüksek (4 Saat SLA Çözüm Hedefi)", "high"],
+          ["🔵 Normal (8 Saat SLA Çözüm Hedefi)", "medium"],
+          ["⚪ Düşük (24 Saat SLA Çözüm Hedefi)", "low"]
+        ], { selected: "medium" }, class: "form-control" %>
+        <span style="font-size: 0.78rem; color: var(--text-dim); margin-top: 0.3rem; display: block;">
+          Zaman kuralı motoru, seçtiğiniz önceliğe göre biletin son teslim tarihini (due date) otomatik hesaplar.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :description, "Sorun / Talep Açıklaması *", class: "form-label" %>
+        <%= f.text_area :description, rows: 5, class: "form-control", placeholder: "Yaşadığınız problemi detaylı olarak açıklayın...", required: true %>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; margin-top: 1.5rem;">
+        <a href="<%= tickets_path %>" class="btn btn-secondary">
+          Vazgeç
+        </a>
+        <button type="submit" class="btn btn-primary" id="btn-create-ticket">
+          Talebi Başlat & SLA'i Başlat
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

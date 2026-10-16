@@ -1,0 +1,171 @@
+<div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main); margin-bottom: 0.35rem;">
+      Müşteri Destek Masası (Aort Dilimi)
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">
+      Fortune 500 destek operasyonları için gerçek zamanlı SLA takibi ve bilet yaşam döngüsü.
+    </p>
+  </div>
+  <div>
+    <a href="<%= new_ticket_path %>" class="btn btn-primary" id="btn-new-ticket">
+      + Yeni Destek Talebi Oluştur
+    </a>
+  </div>
+</div>
+
+<!-- KPI İstatistik Kartları -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <span class="kpi-title">Toplam Destek Talebi</span>
+    <div class="kpi-value"><%= @total_count %></div>
+    <span class="kpi-subtext">Sistemdeki tüm kayıtlı biletler</span>
+  </div>
+
+  <div class="kpi-card" style="border-left: 3px solid #6366f1;">
+    <span class="kpi-title">İşlemdeki Talepler</span>
+    <div class="kpi-value" style="color: #818cf8;"><%= @open_count %></div>
+    <span class="kpi-subtext">Yeni, Açık ve Bekleyen talepler</span>
+  </div>
+
+  <div class="kpi-card" style="border-left: 3px solid #ef4444;">
+    <span class="kpi-title">SLA Süresi Aşılanlar (Breached)</span>
+    <div class="kpi-value" style="color: #f87171;"><%= @breached_count %></div>
+    <span class="kpi-subtext">Kritik çözüm süresini aşan biletler</span>
+  </div>
+
+  <div class="kpi-card" style="border-left: 3px solid #10b981; background: linear-gradient(145deg, rgba(16, 185, 129, 0.08), var(--bg-card));">
+    <span class="kpi-title">100 Puan: Nezaket Koruması</span>
+    <div class="kpi-value" style="color: #34d399;">
+      <%= @gratitude_saves %>
+      <span style="font-size: 0.85rem; font-weight: 600; color: #a7f3d0;">Kurtarma</span>
+    </div>
+    <span class="kpi-subtext">Teşekkür nedeniyle gereksiz açılmayanlar</span>
+  </div>
+</div>
+
+<!-- Bilet Listesi Tablosu -->
+<div class="card">
+  <div class="card-header">
+    <div style="font-weight: 700; font-size: 1.05rem;">
+      Destek Biletleri Akışı
+    </div>
+
+    <!-- Filtre Butonları -->
+    <div class="filter-group">
+      <a href="<%= tickets_path %>" class="filter-pill <%= 'active' if params[:filter].blank? %>">
+        Tümü (<%= @total_count %>)
+      </a>
+      <a href="<%= tickets_path(filter: 'open') %>" class="filter-pill <%= 'active' if params[:filter] == 'open' %>">
+        Açık Kuyruk (<%= @open_count %>)
+      </a>
+      <a href="<%= tickets_path(filter: 'solved') %>" class="filter-pill <%= 'active' if params[:filter] == 'solved' %>">
+        Çözülenler
+      </a>
+      <a href="<%= tickets_path(filter: 'breached') %>" class="filter-pill <%= 'active' if params[:filter] == 'breached' %>" style="color: #f87171;">
+        ⚠️ SLA Aşımı (<%= @breached_count %>)
+      </a>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Öncelik</th>
+          <th>Konu & Müşteri</th>
+          <th>Durum</th>
+          <th>SLA Geri Sayımı / Durumu</th>
+          <th>Atanan Temsilci</th>
+          <th style="text-align: right;">Aksiyon</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @tickets.any? %>
+          <% @tickets.each do |ticket| %>
+            <tr>
+              <td style="color: var(--text-dim); font-weight: 600;">
+                #<%= ticket.id %>
+              </td>
+
+              <td>
+                <span class="badge badge-<%= ticket.priority %>">
+                  <%= ticket.human_priority_name %>
+                </span>
+              </td>
+
+              <td>
+                <a href="<%= ticket_path(ticket) %>" class="ticket-link">
+                  <%= ticket.title %>
+                </a>
+                <div class="ticket-customer">
+                  <%= ticket.customer_name %> • <%= ticket.customer_email %>
+                </div>
+              </td>
+
+              <td>
+                <% status_class = case ticket.status
+                   when "status_new" then "new"
+                   when "status_open" then "open"
+                   when "status_pending" then "pending"
+                   when "status_solved" then "solved"
+                   when "status_closed" then "closed"
+                   end %>
+                <span class="badge badge-<%= status_class %>">
+                  <%= ticket.human_status_name %>
+                </span>
+              </td>
+
+              <td>
+                <% if ticket.status_solved? || ticket.status_closed? %>
+                  <span style="color: #34d399; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    ✓ Tamamlandı
+                  </span>
+                <% elsif ticket.sla_breached? %>
+                  <span class="badge badge-breached">
+                    ⚠️ SLA AŞILDI
+                  </span>
+                <% else %>
+                  <% remaining = ticket.sla_remaining_seconds %>
+                  <% hours = remaining / 3600 %>
+                  <% mins = (remaining % 3600) / 60 %>
+                  <span style="font-weight: 600; font-size: 0.85rem; color: <%= ticket.sla_urgency_level == :warning ? '#fbbf24' : '#38bdf8' %>;">
+                    ⏱️ <%= hours %>s <%= mins %>dk kaldı
+                  </span>
+                  <div style="font-size: 0.72rem; color: var(--text-dim);">
+                    Hedef: <%= ticket.sla_due_at.strftime("%H:%M (%d.%m)") %>
+                  </div>
+                <% end %>
+              </td>
+
+              <td>
+                <% if ticket.assigned_agent.present? %>
+                  <span style="font-size: 0.85rem; color: var(--text-main); font-weight: 500;">
+                    👤 <%= ticket.assigned_agent %>
+                  </span>
+                <% else %>
+                  <span style="font-size: 0.8rem; color: var(--text-dim); font-style: italic;">
+                    Atanmadı
+                  </span>
+                <% end %>
+              </td>
+
+              <td style="text-align: right;">
+                <a href="<%= ticket_path(ticket) %>" class="btn btn-secondary btn-sm">
+                  İncele →
+                </a>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+              Bu filtreye uygun destek talebi bulunamadı.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

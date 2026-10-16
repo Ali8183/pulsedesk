@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: pulsedesk
+    runtime: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: WEB_CONCURRENCY
+        value: "2"

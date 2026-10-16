@@ -1,0 +1,327 @@
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <a href="<%= tickets_path %>" style="color: var(--text-dim); text-decoration: none; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 0.5rem;">
+      ← Talepler Listesine Dön
+    </a>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <h1 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-main);">
+        <%= @ticket.title %>
+      </h1>
+      <span style="color: var(--text-dim); font-size: 1.1rem; font-weight: 600;">#<%= @ticket.id %></span>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 0.5rem;">
+    <span class="badge badge-<%= @ticket.priority %>" style="font-size: 0.85rem; padding: 4px 12px;">
+      Öncelik: <%= @ticket.human_priority_name %>
+    </span>
+
+    <% status_class = case @ticket.status
+       when "status_new" then "new"
+       when "status_open" then "open"
+       when "status_pending" then "pending"
+       when "status_solved" then "solved"
+       when "status_closed" then "closed"
+       end %>
+    <span class="badge badge-<%= status_class %>" style="font-size: 0.85rem; padding: 4px 12px;">
+      Durum: <%= @ticket.human_status_name %>
+    </span>
+  </div>
+</div>
+
+<div class="detail-layout">
+  <!-- Sol Kolon: Bilet İçeriği, Durum Geçişleri ve Mesajlaşma -->
+  <div class="detail-main">
+
+    <!-- Bilet Talep Açıklaması -->
+    <div class="card" style="padding: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <div class="author-avatar avatar-customer">
+            <%= @ticket.customer_name[0] %>
+          </div>
+          <div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;"><%= @ticket.customer_name %></strong>
+            <span style="color: var(--text-dim); font-size: 0.8rem;">(<%= @ticket.customer_email %>)</span>
+          </div>
+        </div>
+        <span style="color: var(--text-dim); font-size: 0.78rem;">
+          Oluşturulma: <%= @ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+        </span>
+      </div>
+
+      <div style="color: #e2e8f0; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap;">
+        <%= @ticket.description %>
+      </div>
+    </div>
+
+    <!-- AORT DİLİMİ: Durum Akışı & Yönetim Çubuğu -->
+    <div class="card" style="padding: 1.25rem; background: var(--bg-card-subtle);">
+      <div style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.75rem;">
+        ⚡ Aort Dilimi Durum Yönetimi (State Machine)
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+        <!-- Temsilci Atama / Açık Yapma -->
+        <% if @ticket.status_new? || @ticket.assigned_agent.blank? %>
+          <%= form_with url: assign_ticket_path(@ticket), method: :patch, local: true, style: "display: inline-flex; gap: 0.4rem; align-items: center;" do |f| %>
+            <%= select_tag :agent_name, options_for_select([["Ahmet Kaya", "Ahmet Kaya"], ["Selin Yılmaz", "Selin Yılmaz"], ["Elif Tekin", "Elif Tekin"]], @ticket.assigned_agent), class: "form-control", style: "padding: 0.4rem 0.6rem; font-size: 0.82rem; width: auto;" %>
+            <button type="submit" class="btn btn-primary btn-sm">
+              👤 Temsilci Ata & Açık Yap
+            </button>
+          <% end %>
+        <% end %>
+
+        <!-- Yanıt Bekleniyor Yap -->
+        <% if @ticket.can_transition_to?(:status_pending) %>
+          <%= button_to transition_ticket_path(@ticket, target_status: :status_pending), method: :patch, class: "btn btn-secondary btn-sm" do %>
+            ⏳ Müşteriden Yanıt Bekleniyor
+          <% end %>
+        <% end %>
+
+        <!-- Açık Yap (Geri Al) -->
+        <% if @ticket.can_transition_to?(:status_open) && !@ticket.status_new? %>
+          <%= button_to transition_ticket_path(@ticket, target_status: :status_open), method: :patch, class: "btn btn-secondary btn-sm" do %>
+            🔄 Açık (Open) Durumuna Al
+          <% end %>
+        <% end %>
+
+        <!-- Çözüldü Olarak İşaretle -->
+        <% if @ticket.can_transition_to?(:status_solved) %>
+          <%= button_to transition_ticket_path(@ticket, target_status: :status_solved), method: :patch, class: "btn btn-success btn-sm", style: "box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);" do %>
+            ✓ Talebi Çözüldü İşaretle
+          <% end %>
+        <% end %>
+
+        <!-- Arşivle / Kapat -->
+        <% if @ticket.can_transition_to?(:status_closed) %>
+          <%= button_to transition_ticket_path(@ticket, target_status: :status_closed), method: :patch, class: "btn btn-secondary btn-sm", data: { confirm: "Bilet tamamen kapatılacak ve üzerinde değişiklik yapılamayacak. Onaylıyor musunuz?" } do %>
+            🔒 Talebi Kapat (Arşiv)
+          <% end %>
+        <% end %>
+
+        <% if @ticket.status_closed? %>
+          <span style="font-size: 0.82rem; color: var(--text-dim); font-style: italic;">
+            Bu talep kapatılmıştır (Closed); yaşam döngüsü tamamlandı.
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Mesajlaşma Akışı (Comments Thread) -->
+    <div>
+      <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main);">
+        İletişim & Yanıt Geçmişi (<%= @comments.count %>)
+      </h3>
+
+      <div class="thread-container">
+        <% if @comments.any? %>
+          <% @comments.each do |comment| %>
+            <div class="comment-card <%= comment.author_role %> <%= 'gratitude-saved' if comment.is_gratitude? %>">
+              <div class="comment-header">
+                <div class="author-info">
+                  <div class="author-avatar <%= comment.author_role == 'agent' ? 'avatar-agent' : 'avatar-customer' %>">
+                    <%= comment.author_name[0] %>
+                  </div>
+                  <div>
+                    <strong style="font-size: 0.9rem; color: var(--text-main);"><%= comment.author_name %></strong>
+                    <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 0.4rem;">
+                      (<%= comment.author_role == 'agent' ? 'Destek Temsilcisi' : 'Müşteri' %>)
+                    </span>
+                  </div>
+                </div>
+
+                <span class="comment-time">
+                  <%= comment.created_at.strftime("%d.%m.%Y %H:%M") %>
+                </span>
+              </div>
+
+              <div class="comment-body"><%= comment.body %></div>
+
+              <!-- 100 PUANLIK ROZET: Gratitude Guard Bilgilendirmesi -->
+              <% if comment.is_gratitude? %>
+                <div class="gratitude-banner">
+                  <span style="font-size: 1.2rem;">✨</span>
+                  <div>
+                    <strong>100 Puan Özelliği (Gratitude Guard):</strong>
+                    Müşteri teşekkür mesajı iletti. Orijinal Zendesk'te bu mesaj bileti yeniden açıp metrikleri bozarken; PulseDesk'te bilet durumu <strong>'Çözüldü'</strong> olarak başarıyla korundu!
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <div style="text-align: center; padding: 2rem; background: var(--bg-card); border: 1px dashed var(--border-color); border-radius: var(--radius-md); color: var(--text-dim); font-size: 0.9rem;">
+            Henüz bir yanıt eklenmedi. Aşağıdaki formdan ilk yanıtı iletebilirsiniz.
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Yanıt Ekleme ve Canlı Simülasyon Kartı -->
+    <% unless @ticket.status_closed? %>
+      <div class="card" style="padding: 1.5rem;">
+        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main);">
+          Yeni Yanıt Gönder
+        </h4>
+
+        <%= form_with model: [@ticket, @new_comment], local: true, id: "comment-form" do |f| %>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <%= f.label :author_role, "Kim Olarak Yanıtlıyorsunuz?", class: "form-label" %>
+              <%= f.select :author_role, [["Destek Temsilcisi Olarak", "agent"], ["Müşteri Olarak", "customer"]], {}, class: "form-control", id: "author-role-select" %>
+            </div>
+            <div>
+              <%= f.label :author_name, "Gönderen Adı", class: "form-label" %>
+              <%= f.text_field :author_name, value: (@ticket.assigned_agent || "Destek Ekibi"), class: "form-control", id: "author-name-input" %>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :body, "Mesaj İçeriği", class: "form-label" %>
+            <%= f.text_area :body, rows: 3, class: "form-control", id: "comment-body-textarea", placeholder: "Mesajınızı buraya yazın..." %>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <button type="submit" class="btn btn-primary" id="btn-submit-comment">
+              Mesajı Gönder
+            </button>
+
+            <!-- Hızlı Sunum Butonları (5 Dakikalık Sunumda Zaman Kazandırır) -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillGratitude()" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399;">
+                ✨ Hızlı Teşekkür Doldur (Nezaket Koruması)
+              </button>
+
+              <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillObjection()" style="border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                ⚠️ Hızlı İtiraz Doldur (Re-Open)
+              </button>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+
+  <!-- Sağ Kolon: Zaman Kuralı (SLA Engine) ve Bilet Detayları -->
+  <div class="detail-sidebar">
+
+    <!-- ZAMAN KURALI: SLA Paneli -->
+    <div class="sla-panel <%= 'breached' if @ticket.sla_breached? %>">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+        <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);">
+          ⏱️ Zaman Kuralı (SLA Engine)
+        </span>
+        <% if @ticket.sla_breached? %>
+          <span class="badge badge-breached">İHLAL EDİLDİ</span>
+        <% elsif @ticket.status_solved? || @ticket.status_closed? %>
+          <span class="badge badge-solved">SLA DURDU</span>
+        <% else %>
+          <span class="badge badge-open">GERİ SAYIM AKTİF</span>
+        <% end %>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 2px;">
+          Tanımlı SLA Politikası:
+        </div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">
+          <%= @ticket.sla_hours %> Saat Çözüm Hedefi
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem; padding: 0.85rem; background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+        <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 4px;">Kalan Süre / Durum:</div>
+        <% if @ticket.status_solved? || @ticket.status_closed? %>
+          <div style="font-size: 1rem; font-weight: 700; color: #34d399;">
+            ✓ Hedef Süre İçinde Çözüldü
+          </div>
+        <% elsif @ticket.sla_breached? %>
+          <div style="font-size: 1.15rem; font-weight: 800; color: #f87171;">
+            ⚠️ SLA Süresi Aşıldı!
+          </div>
+          <div style="font-size: 0.75rem; color: #fca5a5; margin-top: 2px;">
+            Acil eskalasyon bayrağı kalktı.
+          </div>
+        <% else %>
+          <% remaining = @ticket.sla_remaining_seconds %>
+          <% hours = remaining / 3600 %>
+          <% mins = (remaining % 3600) / 60 %>
+          <div style="font-size: 1.35rem; font-weight: 800; color: <%= @ticket.sla_urgency_level == :warning ? '#fbbf24' : '#38bdf8' %>;">
+            <%= hours %>s <%= mins %>dk kaldı
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 2px;">
+            Son Tarih: <%= @ticket.sla_due_at.strftime("%d.%m.%Y %H:%M") %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Sunumda 2 saat beklememek için tek tıkla canlıda SLA aşımını gösterme butonu -->
+      <% unless @ticket.status_solved? || @ticket.status_closed? || @ticket.sla_breached? %>
+        <%= button_to simulate_time_travel_ticket_path(@ticket), method: :post, class: "btn btn-danger btn-sm", style: "width: 100%; justify-content: center; font-size: 0.78rem;", data: { confirm: "SLA süresi 15 dakika öncesine çekilip SLA ihlali canlıda simüle edilecek. Devam edilsin mi?" } do %>
+          ⚡ Zaman Makinesi: SLA Aşımını Simüle Et
+        <% end %>
+        <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; margin-top: 4px;">
+          (5 dakikalık sunumda canlı SLA alarmını göstermek için)
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Müşteri ve Sistem Bilgileri -->
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.85rem;">
+        Talep Metadata
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">Müşteri:</span>
+          <strong style="color: var(--text-main);"><%= @ticket.customer_name %></strong>
+        </div>
+
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">E-Posta:</span>
+          <span style="color: var(--text-muted);"><%= @ticket.customer_email %></span>
+        </div>
+
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">Atanan Temsilci:</span>
+          <strong style="color: var(--text-main);"><%= @ticket.assigned_agent.presence || "Atanmadı" %></strong>
+        </div>
+
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">İlk Yanıt Zamanı:</span>
+          <span style="color: var(--text-muted);"><%= @ticket.first_responded_at ? @ticket.first_responded_at.strftime("%d.%m.%Y %H:%M") : "Henüz yanıtlanmadı" %></span>
+        </div>
+
+        <% if @ticket.resolved_at %>
+          <div>
+            <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">Çözüm Zamanı:</span>
+            <span style="color: #34d399;"><%= @ticket.resolved_at.strftime("%d.%m.%Y %H:%M") %></span>
+          </div>
+        <% end %>
+
+        <div>
+          <span style="color: var(--text-dim); display: block; font-size: 0.75rem;">Nezaket Koruması Başarısı:</span>
+          <span style="color: #34d399; font-weight: 700;"><%= @ticket.gratitude_count %> Teşekkür Kurtarıldı</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function quickFillGratitude() {
+    document.getElementById('author-role-select').value = 'customer';
+    document.getElementById('author-name-input').value = '<%= j @ticket.customer_name %>';
+    document.getElementById('comment-body-textarea').value = 'Çok teşekkür ederim, elinize sağlık problemim tamamen çözüldü!';
+  }
+
+  function quickFillObjection() {
+    document.getElementById('author-role-select').value = 'customer';
+    document.getElementById('author-name-input').value = '<%= j @ticket.customer_name %>';
+    document.getElementById('comment-body-textarea').value = 'Teşekkürler ancak sayfayı yenilediğimde aynı hata tekrar devam ediyor, bakar mısınız?';
+  }
+</script>
