@@ -24,22 +24,19 @@
           <div>
             <div class="brand-name">PulseDesk</div>
           </div>
-          <span class="brand-tag">Destek Masası</span>
+          <span class="brand-tag">Kurumsal SLA Masası</span>
         </a>
       </div>
 
       <nav class="nav-links">
-        <a href="<%= tickets_path %>" class="nav-link <%= 'active' if (current_page?(tickets_path) || current_page?(root_path)) && params[:filter].blank? %>">
-          Tüm Talepler
+        <a href="<%= tickets_path %>" class="nav-link <%= 'active' if (current_page?(tickets_path) || current_page?(root_path)) && params[:filter].blank? && controller_name == 'tickets' %>">
+          💻 Temsilci Masası
         </a>
-        <a href="<%= tickets_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
-          Açık Kuyruk
+        <a href="<%= portal_path %>" class="nav-link <%= 'active' if controller_name == 'portal' %>" style="color: #2563eb; font-weight: 600; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
+          📱 Müşteri Portalı (Dışarıdan Talep Aç)
         </a>
         <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
           SLA Alarmları
-        </a>
-        <a href="<%= new_ticket_path %>" class="btn btn-primary btn-sm">
-          + Yeni Talep
         </a>
         <span class="live-indicator">
           <span class="live-dot"></span>
@@ -70,10 +67,10 @@
     <footer class="footer">
       <div class="footer-inner">
         <div>
-          <strong>PulseDesk</strong> — Kurumsal Müşteri Destek & Akıllı SLA Motoru
+          <strong>PulseDesk</strong> — Fortune 500 Ölçeğinde Destek & Akıllı SLA Biletleme Platformu
         </div>
         <div>
-          Akıllı Nezaket Koruması (Gratitude Guard) devrede
+          Nezaket Koruması (Gratitude Guard) & Canlı Müşteri Portalı Devrede
         </div>
       </div>
     </footer>

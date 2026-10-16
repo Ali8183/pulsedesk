@@ -112,22 +112,24 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `19 runs, 71 assertions, 0 failures, 0 errors, 0 skips` (19/19 Başarılı).
+* **Test Sonucu:** `23 runs, 87 assertions, 0 failures, 0 errors, 0 skips` (23/23 Başarılı).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
+* **Müşteri Portalı:** `test/controllers/portal_controller_test.rb` ile uçtan uca test edilmiştir.
 
 ---
 
 ## 7. 5 Dakikalık Sunum Rehberi & Hızlı İpuçları
 
 1. **Giriş (30 sn):** "PulseDesk, Zendesk'in kurumsal biletleme aort diliminin Rails 8 klonudur. Stanley Black & Decker ve Uber gibi F500 firmalarının para ödediği temel iş akışını çözer."
-2. **Canlı Akış (2 dk):**
-   - Yeni bilet açılır (Örn: Acil - 2 Saat SLA atanır).
-   - Temsilci atanır ve 'Açık' duruma geçer.
-   - Temsilci yanıt yazar ve 'Çözüldü' işaretler.
+2. **Canlı Akış (2 dk - Çift Taraflı Deneyim):**
+   - **Müşteri Gözünden (`/portal`):** Telefondan veya gizli sekmeden `/portal` adresine girip acil bir talep oluşturulur.
+   - **Temsilci Masasında (`/tickets`):** Talep 2 saatlik SLA geri sayımıyla anında temsilci ekranına düşer!
+   - Temsilci atanır ve 'Çözüldü' işaretlenir.
 3. **Zaman Kuralı & Kod Yeri (1 dk):**
    - **Hocanın Olası Kod Yeri Sorusu:** *"SLA hafta sonunu saymasın kuralını nereye eklersiniz?"*
    - **Cevap:** `app/services/sla_calculator.rb` dosyası içindeki `calculate_due_at` metodu (Satır 24-40). Burada `target += 2.days if target.saturday?` iş günü kontrolü eklenir.
    - **Canlı SLA Aşımı:** Bilet sayfasındaki **"⚡ Zaman Makinesi"** butonuna basılarak SLA aşımı canlıda gösterilir.
 4. **100 Puanlık Nezaket Koruması (1 dk):**
-   - Çözülmüş bilete **"✨ Hızlı Teşekkür Doldur"** butonuna basıp gönderilir. Biletin durumu `solved` kalır!
-   - Ardından **"⚠️ Hızlı İtiraz Doldur"** butonuna basılıp gönderilir. Bilet yeniden `open` olur!
+   - Müşteri portalından veya bilet ekranından **"✨ Hızlı Teşekkür"** gönderilir. Biletin durumu `solved` kalır!
+   - Ardından **"⚠️ Hızlı İtiraz"** gönderilir. Bilet derhal yeniden `open` olur!
+

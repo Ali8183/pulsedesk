@@ -5,6 +5,13 @@ Rails.application.routes.draw do
 
   root "tickets#index"
 
+  # Müşteri Dış Portalı (Telefondan veya dışarıdan talep açma / takip etme)
+  get  "portal", to: "portal#new", as: :portal
+  post "portal", to: "portal#create"
+  get  "portal/tickets/:id", to: "portal#show", as: :portal_ticket
+  post "portal/tickets/:id/reply", to: "portal#reply", as: :portal_reply
+
+  # Destek Ekibi & Temsilci Masası
   resources :tickets do
     member do
       patch :transition

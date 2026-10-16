@@ -1,0 +1,148 @@
+<div style="max-width: 720px; margin: 0 auto;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <a href="<%= portal_path %>" style="color: var(--text-muted); font-size: 0.82rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 0.4rem;">
+        ← Yeni Müşteri Talebi Aç
+      </a>
+      <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <h1 style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em;">
+          <%= @ticket.title %>
+        </h1>
+        <span style="color: var(--text-muted); font-size: 0.95rem; font-weight: 600;">#<%= @ticket.id %></span>
+      </div>
+    </div>
+
+    <div>
+      <% status_class = case @ticket.status
+         when "status_new" then "new"
+         when "status_open" then "open"
+         when "status_pending" then "pending"
+         when "status_solved" then "solved"
+         when "status_closed" then "closed"
+         end %>
+      <span class="badge badge-<%= status_class %>" style="font-size: 0.85rem; padding: 5px 14px;">
+        <%= @ticket.human_status_name %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Durum Bilgi Kartı -->
+  <div class="card" style="padding: 1.25rem; margin-bottom: 1.25rem; background: #f8fafc;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; font-size: 0.85rem;">
+      <div>
+        <span style="color: var(--text-muted);">Müşteri:</span>
+        <strong style="color: var(--text-primary);"><%= @ticket.customer_name %></strong>
+      </div>
+      <div>
+        <span style="color: var(--text-muted);">İlgilenen Temsilci:</span>
+        <strong style="color: var(--text-primary);"><%= @ticket.assigned_agent.presence || "Sıraya alındı (Atanıyor)" %></strong>
+      </div>
+      <div>
+        <a href="<%= ticket_path(@ticket) %>" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+          Temsilci Masasında Aç ↗
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bilet Başlangıç Açıklaması -->
+  <div class="card" style="padding: 1.35rem; margin-bottom: 1.25rem;">
+    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">
+      İlk Talep Açıklamanız
+    </div>
+    <div style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; white-space: pre-wrap;">
+      <%= @ticket.description %>
+    </div>
+  </div>
+
+  <!-- İletişim Akışı (Thread) -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.85rem;">
+      Mesajlaşma Geçmişi (<%= @comments.count %>)
+    </h3>
+
+    <div class="thread-container">
+      <% if @comments.any? %>
+        <% @comments.each do |comment| %>
+          <div class="comment-card <%= comment.author_role %> <%= 'gratitude-saved' if comment.is_gratitude? %>">
+            <div class="comment-header">
+              <div class="author-info">
+                <div class="author-avatar <%= comment.author_role == 'agent' ? 'avatar-agent' : 'avatar-customer' %>">
+                  <%= comment.author_name[0] %>
+                </div>
+                <div>
+                  <strong style="font-size: 0.88rem; color: var(--text-primary);"><%= comment.author_name %></strong>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.35rem;">
+                    <%= comment.author_role == 'agent' ? 'Destek Uzmanı' : 'Siz (Müşteri)' %>
+                  </span>
+                </div>
+              </div>
+              <span class="comment-time">
+                <%= comment.created_at.strftime("%H:%M (%d.%m)") %>
+              </span>
+            </div>
+
+            <div class="comment-body"><%= comment.body %></div>
+
+            <% if comment.is_gratitude? %>
+              <div class="gratitude-banner">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0; margin-top: 2px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <div>
+                  <strong>Nezaket Koruması Devrede:</strong>
+                  Teşekkür mesajınız iletildi. Talebiniz çözülmüş olarak kalmaya devam ediyor.
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div style="text-align: center; padding: 1.5rem; background: var(--bg-surface); border: 1px dashed var(--border-subtle); border-radius: 8px; color: var(--text-muted); font-size: 0.88rem;">
+          Destek ekibimiz talebinizi inceliyor. İlk yanıt geldiğinde burada görünecektir.
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Müşteri Yanıt Formu -->
+  <div class="card" style="padding: 1.5rem;">
+    <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
+      Destek Ekibine Mesaj Yaz
+    </h4>
+
+    <%= form_with url: portal_reply_path(@ticket), method: :post, local: true do |f| %>
+      <div class="form-group">
+        <textarea name="comment[body]" id="portal-reply-body" class="form-control" rows="3" placeholder="Sorunuz veya cevabınız varsa buraya yazın..." required></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <button type="submit" class="btn btn-primary">
+          Yanıtı Gönder
+        </button>
+
+        <!-- Canlı Demo Hızlı Butonları -->
+        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerThanks()">
+            ✨ "Çok Teşekkürler" Yaz (Nezaket Testi)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerIssue()">
+            ⚠️ "Sorun Sürüyor" Yaz (Yeniden Açma Testi)
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+</div>
+
+<script>
+  function quickFillCustomerThanks() {
+    document.getElementById('portal-reply-body').value = 'Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!';
+  }
+
+  function quickFillCustomerIssue() {
+    document.getElementById('portal-reply-body').value = 'Merhaba, sayfayı yenileyince hata tekrar çıktı, bakar mısınız?';
+  }
+</script>
