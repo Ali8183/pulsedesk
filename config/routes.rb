@@ -6,13 +6,18 @@ Rails.application.routes.draw do
   # 1. Giriş Sayfası (Landing Page)
   root "home#index"
 
-  # 2. Müşteri Alanı (Müşteri Destek Portalı)
+  # 2. Yetkili Temsilci Giriş & Çıkış (Authentication)
+  get    "agent/login",  to: "sessions#new",     as: :agent_login
+  post   "agent/login",  to: "sessions#create"
+  delete "agent/logout", to: "sessions#destroy", as: :agent_logout
+
+  # 3. Müşteri Alanı (Müşteri Destek Portalı)
   get  "portal", to: "portal#new", as: :portal
   post "portal", to: "portal#create"
   get  "portal/tickets/:id", to: "portal#show", as: :portal_ticket
   post "portal/tickets/:id/reply", to: "portal#reply", as: :portal_reply
 
-  # 3. Temsilci Alanı (Destek Ekibi & Temsilci Masası)
+  # 4. Temsilci Masası (Sadece Giriş Yapmış Temsilcilere Özel)
   resources :tickets do
     member do
       patch :transition

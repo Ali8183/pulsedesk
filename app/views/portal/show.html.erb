@@ -39,9 +39,15 @@
         <strong style="color: var(--text-primary);"><%= @ticket.assigned_agent.presence || "Sıraya alındı (Atanıyor)" %></strong>
       </div>
       <div>
-        <a href="<%= ticket_path(@ticket) %>" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-          Temsilci Masasında Aç ↗
-        </a>
+        <% if agent_signed_in? %>
+          <a href="<%= ticket_path(@ticket) %>" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 0.8rem; background: #eff6ff; padding: 3px 8px; border-radius: 6px;">
+            💻 Temsilci Masasında Aç ↗
+          </a>
+        <% else %>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">
+            Talep No: #<%= @ticket.id %>
+          </span>
+        <% end %>
       </div>
     </div>
   </div>

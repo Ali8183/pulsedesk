@@ -112,9 +112,10 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `23 runs, 87 assertions, 0 failures, 0 errors, 0 skips` (23/23 Başarılı).
+* **Test Sonucu:** `30 runs, 109 assertions, 0 failures, 0 errors, 0 skips` (30/30 Başarılı).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
-* **Müşteri Portalı:** `test/controllers/portal_controller_test.rb` ile uçtan uca test edilmiştir.
+* **Müşteri Portalı:** `test/controllers/portal_controller_test.rb` ile test edilmiştir.
+* **Yetkili Temsilci Girişi (RBAC):** `test/controllers/sessions_controller_test.rb` ile yetkilendirme sınırları doğrulanmıştır.
 
 ---
 

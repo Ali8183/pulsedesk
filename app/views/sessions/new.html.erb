@@ -1,0 +1,75 @@
+<div style="max-width: 440px; margin: 2rem auto 3rem;">
+  
+  <div style="text-align: center; margin-bottom: 2rem;">
+    <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #1e40af, #2563eb); color: white; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
+      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 0.35rem;">
+      Yetkili Temsilci Girişi
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.88rem;">
+      Bu alan yalnızca PulseDesk destek personeli ve operasyon liderleri içindir.
+    </p>
+  </div>
+
+  <div class="card" style="padding: 2rem;">
+    <%= form_with url: agent_login_path, method: :post, local: true do |f| %>
+      <div class="form-group">
+        <%= f.label :email, "Kurumsal E-Posta *", class: "form-label" %>
+        <%= f.email_field :email, id: "login-email", value: "ahmet@pulsedesk.com", class: "form-control", placeholder: "ad.soyad@pulsedesk.com", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :password, "Parola *", class: "form-label" %>
+        <%= f.password_field :password, id: "login-password", value: "admin", class: "form-control", placeholder: "Parolanız", required: true %>
+        <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; display: block;">
+          Demo şifresi: <strong>admin</strong>
+        </span>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.7rem;">
+          Temsilci Olarak Giriş Yap →
+        </button>
+      </div>
+    <% end %>
+
+    <!-- Hızlı Demo Girişi (5 Dakikalık Sunumda Zaman Kazandırır) -->
+    <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle);">
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem; text-align: center;">
+        ⚡ Sunum İçin Tek Tıkla Giriş
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <%= button_to agent_login_path(email: "ahmet@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+          <span>👤</span>
+          <div style="text-align: left; margin-left: 0.4rem;">
+            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Ahmet Kaya</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Kıdemli Destek Uzmanı</div>
+          </div>
+        <% end %>
+
+        <%= button_to agent_login_path(email: "selin@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+          <span>👤</span>
+          <div style="text-align: left; margin-left: 0.4rem;">
+            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Selin Yılmaz</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Destek Temsilcisi</div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 1.5rem;">
+    <a href="/" style="color: var(--text-muted); font-size: 0.84rem; text-decoration: none;">
+      ← Ana Sayfaya Dön
+    </a>
+    <span style="color: var(--border-strong); margin: 0 0.5rem;">•</span>
+    <a href="<%= portal_path %>" style="color: var(--primary); font-size: 0.84rem; text-decoration: none; font-weight: 500;">
+      Müşteri Olarak Destek Al ↗
+    </a>
+  </div>
+
+</div>

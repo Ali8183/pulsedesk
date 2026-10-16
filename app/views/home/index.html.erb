@@ -67,9 +67,15 @@
       </div>
 
       <div>
-        <a href="<%= tickets_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
-          💻 Temsilci Masasına Gir →
-        </a>
+        <% if agent_signed_in? %>
+          <a href="<%= tickets_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
+            💻 Temsilci Masasına Gir (<%= current_agent %>) →
+          </a>
+        <% else %>
+          <a href="<%= agent_login_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
+            🔒 Yetkili Temsilci Girişi Yap →
+          </a>
+        <% end %>
       </div>
     </div>
 

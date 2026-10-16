@@ -26,7 +26,7 @@
           </div>
           <% if controller_name == 'portal' %>
             <span class="brand-tag" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">Müşteri Yardım Merkezi</span>
-          <% elsif controller_name == 'tickets' %>
+          <% elsif agent_signed_in? %>
             <span class="brand-tag" style="background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe;">Temsilci Masası</span>
           <% else %>
             <span class="brand-tag">Kurumsal Destek Platformu</span>
@@ -43,13 +43,19 @@
           <a href="<%= portal_path %>" class="btn btn-primary btn-sm">
             + Yeni Talep Aç
           </a>
-          <a href="<%= tickets_path %>" class="nav-link" style="color: var(--text-muted); font-size: 0.8rem;">
-            Temsilci Paneli ↗
-          </a>
+          <% if agent_signed_in? %>
+            <a href="<%= tickets_path %>" class="nav-link" style="color: #6d28d9; font-weight: 600;">
+              💻 Temsilci Masasına Dön ↗
+            </a>
+          <% else %>
+            <a href="<%= agent_login_path %>" class="nav-link" style="color: var(--text-muted); font-size: 0.8rem;">
+              Yetkili Girişi 🔒
+            </a>
+          <% end %>
 
-        <% elsif controller_name == 'tickets' %>
-          <!-- TEMSİLCİ MASASINDA GÖRÜNEN MENÜ -->
-          <a href="<%= tickets_path %>" class="nav-link <%= 'active' if params[:filter].blank? %>">
+        <% elsif agent_signed_in? %>
+          <!-- TEMSİLCİ GİRİŞİ YAPILMIŞSA GÖRÜNEN YÖNETİM MENÜSÜ -->
+          <a href="<%= tickets_path %>" class="nav-link <%= 'active' if (current_page?(tickets_path) || current_page?(root_path)) && params[:filter].blank? && controller_name == 'tickets' %>">
             Tüm Talepler
           </a>
           <a href="<%= tickets_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
@@ -61,18 +67,25 @@
           <a href="<%= portal_path %>" target="_blank" class="nav-link" style="color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 600;">
             📱 Müşteri Olarak Test Et ↗
           </a>
-          <span class="live-indicator">
-            <span class="live-dot"></span>
-            Canlı Sistem
-          </span>
+
+          <!-- Aktif Temsilci Profili & Çıkış -->
+          <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
+              <strong style="color: var(--text-primary); display: block;"><%= current_agent %></strong>
+              <span style="color: var(--text-muted); font-size: 0.7rem;"><%= current_agent_title %></span>
+            </div>
+            <%= button_to agent_logout_path, method: :delete, class: "btn btn-secondary btn-sm", style: "padding: 0.3rem 0.6rem; font-size: 0.75rem;", title: "Oturumu Kapat" do %>
+              Çıkış
+            <% end %>
+          </div>
 
         <% else %>
-          <!-- ANA GİRİŞ SAYFASINDA (LANDING PAGE) GÖRÜNEN MENÜ -->
+          <!-- GİRİŞ YAPILMAMIŞ GİRİŞ SAYFASI MENÜSÜ -->
           <a href="<%= portal_path %>" class="btn btn-secondary btn-sm" style="font-weight: 600;">
             Müşteri Girişi (Talep Aç)
           </a>
-          <a href="<%= tickets_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
-            Temsilci Masasına Gir →
+          <a href="<%= agent_login_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
+            🔒 Yetkili Temsilci Girişi →
           </a>
         <% end %>
       </nav>
@@ -103,7 +116,7 @@
           <strong>PulseDesk</strong> — Fortune 500 Ölçeğinde Destek & Akıllı SLA Biletleme Platformu
         </div>
         <div>
-          Müşteri Portalı ve Temsilci Masası Ayrı Olarak Çalışmaktadır
+          Güvenli Yetkilendirme & Rol Tabanlı Erişim (RBAC) Devrede
         </div>
       </div>
     </footer>

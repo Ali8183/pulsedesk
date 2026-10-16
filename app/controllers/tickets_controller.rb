@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class TicketsController < ApplicationController
+  before_action :require_agent!
   before_action :set_ticket, only: %i[show transition assign simulate_time_travel]
 
   def index
@@ -33,7 +34,7 @@ class TicketsController < ApplicationController
   def show
     @ticket.check_sla_breach!
     @comments = @ticket.comments.order(created_at: :asc)
-    @new_comment = @ticket.comments.build
+    @new_comment = @ticket.comments.build(author_name: current_agent, author_role: "agent")
   end
 
   def new

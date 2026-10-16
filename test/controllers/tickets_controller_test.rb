@@ -11,6 +11,14 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
       customer_email: "ali@example.com",
       priority: :medium
     )
+    # Temsilci olarak oturum aç
+    post agent_login_url, params: { email: "ahmet@pulsedesk.com", password: "admin" }
+  end
+
+  test "giriş yapmamış kullanıcı temsilci masasına erişemez ve login sayfasına yönlendirilir" do
+    delete agent_logout_url
+    get tickets_url
+    assert_redirected_to agent_login_url
   end
 
   test "index sayfası başarıyla yüklenir" do
