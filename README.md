@@ -58,10 +58,10 @@ Müşterinin bu ürüne para ödemesinin asıl nedeni olan uçtan uca destek bil
           ▼                         ▼
  [Yanıt Bekleniyor (Pending)]   [Çözüldü (Solved)] ──► [SLA Sayacı Başarıyla Durur]
                                     │
-                                    ├── (Müşteri Teşekkür Ederse: Gratitude Guard Devreye Girer -> Solved Kalır)
+                                    ├── (Müşteri Teşekkür Ederse: Gratitude Guard Devreye Girer -> Kilitlenir / Closed)
                                     ├── (Müşteri Yeni Hata Bildirirse -> Yeniden Open Olur)
                                     ▼
-                              [Kapatıldı (Closed / Arşiv)]
+                              [Kapatıldı (Closed / Kilitli Arşiv)]
 ```
 
 ### Zaman Kuralı (Time Rule)
@@ -82,13 +82,13 @@ Müşterinin bu ürüne para ödemesinin asıl nedeni olan uçtan uca destek bil
 ## 4. 100 Puanlık Özellik: "Kullanılabilir Pas" (Kullanıcı Acısı Çözümü)
 
 ### Sunumdaki Tek Cümle:
-> *"G2 ve Capterra'da binlerce destek temsilcisinin şikayet ettiği, 'müşterinin çözülmüş bilete sadece teşekkür etmesiyle biletin yeniden açılıp SLA ve başarı metriklerini çöp etmesi' acısını; PulseDesk'te kural tabanlı Akıllı Nezaket Koruması (Gratitude Guard) ile çözdük."*
+> *"G2 ve Capterra'da binlerce destek temsilcisinin şikayet ettiği, 'müşterinin çözülmüş bilete sadece teşekkür etmesiyle biletin yeniden açılıp SLA ve başarı metriklerini çöp etmesi' acısını; PulseDesk'te kural tabanlı Akıllı Nezaket Koruması (Gratitude Guard) ile çözdük ve biletin kilitlenmesini sağladık."*
 
 * **Kimin Acısı:** Müşteri destek temsilcileri, takım liderleri ve müşteri deneyimi (CX) operasyon yöneticileri.
 * **Hangi Yorum / İnceleme:** G2, Capterra ve [Zendesk Community #4409217316634](https://support.zendesk.com/hc/en-us/community/posts/4409217316634-Prevent-Solved-tickets-from-reopening-when-customer-says-Thank-You) şikayetleri:
   > *"Zendesk automatically re-opens solved tickets when a customer replies with just 'Thanks!', which ruins our First Contact Resolution and agent SLA reporting. We waste hours manually closing thank-you tickets."*
 * **Bizim Çözümümüz (`GratitudeGuard`):**
-  Müşteri `status_solved` durumundaki bir bilete yanıt yazdığında, doğal dil filtreleme motoru devreye girer. Yanıt yalnızca teşekkür/memnuniyet ifadeleri içeriyorsa biletin durumu `status_solved` kalmaya devam eder, arayüzde altın rozetle "Teşekkür Korundu" bilgisi gösterilir ve sayaç artırılır. Müşteri teşekkürün yanına yeni bir sorun/hata eklerse bilet derhal yeniden `status_open` yapılarak temsilcinin kuyruğuna alınır.
+  Müşteri çözülmüş veya işlemdeki bir bilete yanıt yazdığında, doğal dil filtreleme motoru devreye girer. Yanıt yalnızca teşekkür/çözüm onayı ifadeleri içeriyorsa bilet derhal `status_closed` yapılarak **tamamen kilitlenir**, gereksiz yere açık kalmaz veya yeniden açılmaz. Arayüzde kilitli arşiv alanı gösterilir ve sayaç artırılır. Müşteri henüz çözümü onaylamadan yeni bir sorun/hata eklerse bilet `status_open` yapılarak temsilcinin kuyruğuna alınır.
 
 ---
 
@@ -112,7 +112,7 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `37 runs, 143 assertions, 0 failures, 0 errors, 0 skips` (37/37 %100 Yeşil).
+* **Test Sonucu:** `42 runs, 168 assertions, 0 failures, 0 errors, 0 skips` (42/42 %100 Yeşil).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
 * **Müşteri Portalı:** `test/controllers/musteri_controller_test.rb` ile `/musteri` müşteri oturumu, yetkilendirme ve bilet izolasyonu uçtan uca test edilmiştir.
 * **Yetkili Temsilci Masası:** `test/controllers/sessions_controller_test.rb`, `test/controllers/tickets_controller_test.rb` ve `test/controllers/comments_controller_test.rb` ile `/temsilci` bilet yönetimi doğrulanmıştır.
@@ -122,8 +122,8 @@ bin/rails test
 ## 7. 5 Dakikalık Sunum Rehberi & Hızlı İpuçları
 
 Sistem yalnızca **2 temel kapıdan / URL'den** oluşur:
-1. **Müşteri Kapısı (`/musteri`):**
-   - Giriş yapılmamışsa: Yalnızca e-posta/isim ile müşteri giriş ekranı.
+1. **Müşteri Kapısı (`/musteri` veya `/`):**
+   - Giriş yapılmamışsa: Yalnızca e-posta/isim ile müşteri giriş ekranı veya yeni kayıt sekmesi.
    - Giriş yapılmışsa: Sadece o müşteriye ait biletler listelenir (tam müşteri veri izolasyonu) ve yeni bilet formu bulunur.
 2. **Temsilci Masası (`/temsilci`):**
    - Giriş yapılmamışsa: Yetkili personel giriş ekranı (şifre: `admin` veya 1-tıkla Ahmet Kaya).
@@ -132,7 +132,7 @@ Sistem yalnızca **2 temel kapıdan / URL'den** oluşur:
 ### Hocaya Gösterilecek Canlı Akış Senaryosu:
 1. **Giriş (30 sn):** "PulseDesk, Zendesk'in kurumsal biletleme aort diliminin Rails 8 klonudur. Stanley Black & Decker ve Uber gibi F500 firmalarının para ödediği temel iş akışını çözer."
 2. **Canlı Akış (2 dk - Çift Taraflı Deneyim):**
-   - **Müşteri Kapısı (`/musteri`):** Telefondan veya gizli sekmeden `/musteri` adresine girip acil bir talep oluşturulur.
+   - **Müşteri Kapısı (`/`):** Telefondan veya gizli sekmeden girip acil bir talep oluşturulur.
    - **Temsilci Masası (`/temsilci`):** `/temsilci` ekranına talep sayfa yenilenmeden **canlı olarak düşer**!
    - Temsilci Ahmet Kaya olarak bilete tıklanır, yanıt yazılır ve durum 'Çözüldü' yapılır.
 3. **Zaman Kuralı & Kod Yeri (1 dk):**
@@ -140,7 +140,5 @@ Sistem yalnızca **2 temel kapıdan / URL'den** oluşur:
    - **Cevap:** `app/services/sla_calculator.rb` dosyası içindeki `calculate_due_at` metodu (Satır 24-40). Burada `target += 2.days if target.saturday?` iş günü kontrolü eklenir.
    - **Canlı SLA Aşımı:** Bilet sayfasındaki **"⚡ Zaman Makinesi"** butonuna basılarak SLA aşımı canlıda gösterilir.
 4. **100 Puanlık Nezaket Koruması (Gratitude Guard) (1 dk):**
-   - Müşteri portalından `/musteri` bilete **"✨ Hızlı Teşekkür"** gönderilir. Biletin durumu `solved` kalır!
-   - Ardından **"⚠️ Hızlı İtiraz"** gönderilir. Bilet derhal yeniden `open` olur!
-
-
+   - Müşteri portalından `/` bilete **"✨ Hızlı Teşekkür"** gönderilir. Müşteri çözümü onayladığı için bilet başarıyla çözümlenerek **tamamen kilitlenir (Closed)**!
+   - Kilitli bilette mesaj kutusu kapanır, aynı biletin tekrar açık hale gelmesi engellenir.
