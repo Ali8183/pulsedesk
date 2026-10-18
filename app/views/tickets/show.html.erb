@@ -330,4 +330,51 @@
     document.getElementById('author-name-input').value = '<%= j @ticket.customer_name %>';
     document.getElementById('comment-body-textarea').value = 'Teşekkürler ancak sayfayı yenilediğimde aynı hata tekrar devam ediyor, bakar mısınız?';
   }
+
+  // Sayfa Yenilemesiz Canlı Yorum ve Durum Senkronizasyonu
+  (function() {
+    let currentCommentCount = document.querySelectorAll('.comment-card').length;
+    let pollInterval = null;
+
+    async function pollThread() {
+      // Formda yazarken kesintiye uğratma
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.id === 'comment-body-textarea' || activeEl.tagName === 'INPUT')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const newThread = doc.querySelector('.thread-container');
+        const currentThread = document.querySelector('.thread-container');
+        const newComments = doc.querySelectorAll('.comment-card');
+
+        if (newThread && currentThread && newComments.length !== currentCommentCount) {
+          currentThread.innerHTML = newThread.innerHTML;
+          currentCommentCount = newComments.length;
+
+          // Sağ sidebar ve durum bilgilerini de güncelle
+          const newSidebar = doc.querySelector('.detail-sidebar');
+          const currentSidebar = document.querySelector('.detail-sidebar');
+          if (newSidebar && currentSidebar) {
+            currentSidebar.innerHTML = newSidebar.innerHTML;
+          }
+        }
+      } catch (e) {
+        // Sessiz hata yakalama
+      }
+    }
+
+    pollInterval = setInterval(pollThread, 2500);
+    document.addEventListener('turbo:before-cache', () => clearInterval(pollInterval), { once: true });
+    window.addEventListener('beforeunload', () => clearInterval(pollInterval));
+  })();
 </script>

@@ -151,4 +151,51 @@
   function quickFillCustomerIssue() {
     document.getElementById('portal-reply-body').value = 'Merhaba, sayfayı yenileyince hata tekrar çıktı, bakar mısınız?';
   }
+
+  // Müşteri Ekranında Sayfa Yenilemesiz Canlı Mesajlaşma Senkronizasyonu
+  (function() {
+    let currentCommentCount = document.querySelectorAll('.comment-card').length;
+    let pollInterval = null;
+
+    async function pollCustomerThread() {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.id === 'portal-reply-body' || activeEl.tagName === 'INPUT')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const newThread = doc.querySelector('.thread-container');
+        const currentThread = document.querySelector('.thread-container');
+        const newComments = doc.querySelectorAll('.comment-card');
+
+        if (newThread && currentThread && newComments.length !== currentCommentCount) {
+          currentThread.innerHTML = newThread.innerHTML;
+          currentCommentCount = newComments.length;
+        }
+
+        // Biletin Durum Rozetini de Canlı Güncelle (Çözüldü / Açık)
+        const newBadge = doc.querySelector('.badge');
+        const currentBadge = document.querySelector('.badge');
+        if (newBadge && currentBadge && newBadge.innerText !== currentBadge.innerText) {
+          currentBadge.className = newBadge.className;
+          currentBadge.innerText = newBadge.innerText;
+        }
+      } catch (e) {
+        // Sessiz hata yakalama
+      }
+    }
+
+    pollInterval = setInterval(pollCustomerThread, 2500);
+    document.addEventListener('turbo:before-cache', () => clearInterval(pollInterval), { once: true });
+    window.addEventListener('beforeunload', () => clearInterval(pollInterval));
+  })();
 </script>
