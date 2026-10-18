@@ -83,11 +83,8 @@
 
         <% else %>
           <!-- GİRİŞ YAPILMAMIŞSA (ZİYARETÇİ) -->
-          <a href="<%= musteri_path %>" class="btn btn-secondary btn-sm" style="font-weight: 600;">
-            📱 Müşteri Girişi (/musteri)
-          </a>
-          <a href="<%= temsilci_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
-            🔒 Temsilci Girişi (/temsilci)
+          <a href="<%= musteri_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
+            Müşteri Destek Portalı (/musteri)
           </a>
         <% end %>
       </nav>
@@ -117,8 +114,12 @@
         <div>
           <strong>PulseDesk</strong> — Fortune 500 Ölçeğinde Destek & Akıllı SLA Biletleme Platformu
         </div>
-        <div>
-          Güvenli Yetkilendirme & Rol Tabanlı Erişim (RBAC) Devrede
+        <div style="display: flex; align-items: center; gap: 0.85rem; font-size: 0.78rem;">
+          <span style="color: var(--text-muted);">Güvenli Yetkilendirme (RBAC) Devrede</span>
+          <span style="opacity: 0.3;">•</span>
+          <a href="<%= temsilci_path %>" style="color: var(--text-muted); text-decoration: none;">
+            Yetkili Personel Girişi
+          </a>
         </div>
       </div>
     </footer>
