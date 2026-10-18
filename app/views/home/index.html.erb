@@ -40,8 +40,8 @@
       </div>
 
       <div>
-        <a href="<%= portal_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center;">
-          📱 Müşteri Portalı (Talep Aç) →
+        <a href="<%= customer_portal_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center;">
+          📱 Müşteri Portalı (/musteri) →
         </a>
       </div>
     </div>
@@ -72,8 +72,8 @@
             💻 Temsilci Masasına Gir (<%= current_agent %>) →
           </a>
         <% else %>
-          <a href="<%= agent_login_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
-            🔒 Yetkili Temsilci Girişi Yap →
+          <a href="<%= agent_portal_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
+            🔒 Yetkili Temsilci Girişi (/temsilci) →
           </a>
         <% end %>
       </div>

@@ -112,10 +112,10 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `30 runs, 109 assertions, 0 failures, 0 errors, 0 skips` (30/30 Başarılı).
+* **Test Sonucu:** `32 runs, 113 assertions, 0 failures, 0 errors, 0 skips` (32/32 Başarılı).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
-* **Müşteri Portalı:** `test/controllers/portal_controller_test.rb` ile test edilmiştir.
-* **Yetkili Temsilci Girişi (RBAC):** `test/controllers/sessions_controller_test.rb` ile yetkilendirme sınırları doğrulanmıştır.
+* **Müşteri Giriş Portalı:** `test/controllers/portal_controller_test.rb` ile `/musteri` uçtan uca test edilmiştir.
+* **Yetkili Temsilci Girişi:** `test/controllers/sessions_controller_test.rb` ile `/temsilci` yetkilendirmesi doğrulanmıştır.
 
 ---
 
@@ -123,8 +123,8 @@ bin/rails test
 
 1. **Giriş (30 sn):** "PulseDesk, Zendesk'in kurumsal biletleme aort diliminin Rails 8 klonudur. Stanley Black & Decker ve Uber gibi F500 firmalarının para ödediği temel iş akışını çözer."
 2. **Canlı Akış (2 dk - Çift Taraflı Deneyim):**
-   - **Müşteri Gözünden (`/portal`):** Telefondan veya gizli sekmeden `/portal` adresine girip acil bir talep oluşturulur.
-   - **Temsilci Masasında (`/tickets`):** Talep 2 saatlik SLA geri sayımıyla anında temsilci ekranına düşer!
+   - **Müşteri Kapısı (`/musteri`):** Telefondan veya gizli sekmeden `/musteri` adresine girip acil bir talep oluşturulur.
+   - **Temsilci Masası (`/temsilci`):** `/temsilci` üzerinden giriş yapılmış ekrana talep sayfa yenilenmeden canlı düşer!
    - Temsilci atanır ve 'Çözüldü' işaretlenir.
 3. **Zaman Kuralı & Kod Yeri (1 dk):**
    - **Hocanın Olası Kod Yeri Sorusu:** *"SLA hafta sonunu saymasın kuralını nereye eklersiniz?"*

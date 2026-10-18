@@ -1,4 +1,4 @@
-<div style="max-width: 640px; margin: 0 auto;">
+<div style="max-width: 640px; margin: 0 auto 3rem;">
   
   <div style="text-align: center; margin-bottom: 2rem;">
     <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
@@ -10,19 +10,29 @@
       Müşteri Destek Portalı
     </h1>
     <p style="color: var(--text-muted); font-size: 0.95rem;">
-      Bir sorun mu yaşıyorsunuz? Talebinizi iletin, destek uzmanlarımız anında müdahale etsin.
+      Bir sorun mu yaşıyorsunuz? Talebinizi iletin, destek ekibimiz anında incelesin.
     </p>
   </div>
 
-  <!-- Sunum Canlı Demo Bilgilendirmesi -->
-  <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 0.9rem 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
-    <span style="font-size: 1.2rem;">💡</span>
-    <div style="font-size: 0.84rem; color: #1e40af; line-height: 1.5;">
-      <strong>Canlı Sunum İpucu:</strong> Bu sayfayı <strong>telefonunuzdan</strong> veya <strong>farklı bir tarayıcı sekmesinden</strong> açıp bir bilet oluşturun. Gönderdiğiniz an ana ekrandaki <strong>Temsilci Masası</strong>'na canlı olarak düşecektir!
+  <!-- Var Olan Talebi Sorgulama Kartı -->
+  <div class="card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; background: #f8fafc; border: 1px dashed var(--border-subtle);">
+    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">
+      🔍 Önceden Açılmış Bir Biletiniz mi Var?
     </div>
+    <%= form_with url: customer_lookup_path, method: :get, local: true, style: "display: flex; gap: 0.5rem; align-items: center;" do %>
+      <input type="text" name="ticket_id" class="form-control" placeholder="Örn: 5 (Bilet Numaranızı Yazın)" style="flex: 1;" required>
+      <button type="submit" class="btn btn-secondary btn-sm" style="white-space: nowrap; padding: 0.6rem 1rem;">
+        Bileti Takip Et →
+      </button>
+    <% end %>
   </div>
 
+  <!-- Yeni Talep Oluşturma Kartı -->
   <div class="card" style="padding: 2rem;">
+    <div style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle);">
+      Yeni Destek Bildirimi Oluştur
+    </div>
+
     <%= form_with model: @ticket, url: portal_path, local: true do |f| %>
       <% if @ticket.errors.any? %>
         <div class="flash-alert flash-alert-danger" style="margin-bottom: 1.5rem;">
@@ -52,15 +62,15 @@
       <div class="form-group">
         <%= f.label :priority, "Talebin Aciliyeti *", class: "form-label" %>
         <%= f.select :priority, [
-          ["⚡ Acil - İş Durdurucu Arıza (2 Saat Hedef)", "urgent"],
-          ["🔴 Yüksek Öncelikli Sorun (4 Saat Hedef)", "high"],
-          ["🔵 Normal Destek Talebi (8 Saat Hedef)", "medium"]
+          ["⚡ Acil - Kritik Arıza (2 Saat Hedef)", "urgent"],
+          ["🔴 Yüksek Öncelik (4 Saat Hedef)", "high"],
+          ["🔵 Normal Talep (8 Saat Hedef)", "medium"]
         ], { selected: "urgent" }, class: "form-control" %>
       </div>
 
       <div class="form-group">
         <%= f.label :title, "Konu Başlığı *", class: "form-label" %>
-        <%= f.text_field :title, class: "form-control", placeholder: "Örn: Ödeme alırken 403 hatası alıyoruz", required: true %>
+        <%= f.text_field :title, class: "form-control", placeholder: "Örn: Ödeme ekranında 403 hatası alıyoruz", required: true %>
       </div>
 
       <div class="form-group">
@@ -69,12 +79,12 @@
       </div>
 
       <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <a href="<%= tickets_path %>" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
-          ← Temsilci Paneline Dön
+        <a href="/" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+          ← Ana Sayfaya Dön
         </a>
 
         <button type="submit" class="btn btn-primary" id="btn-submit-portal">
-          Talebi Gönder & Destek İste
+          Talebi Gönder & Destek İste →
         </button>
       </div>
     <% end %>

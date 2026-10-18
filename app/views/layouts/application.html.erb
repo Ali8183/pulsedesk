@@ -25,7 +25,9 @@
             <div class="brand-name">PulseDesk</div>
           </div>
           <% if controller_name == 'portal' %>
-            <span class="brand-tag" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">Müşteri Yardım Merkezi</span>
+            <span class="brand-tag" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">Müşteri Destek Portalı</span>
+          <% elsif controller_name == 'sessions' %>
+            <span class="brand-tag" style="background: #fdf2f8; color: #9d174d; border-color: #fbcfe8;">Yetkili Personel Girişi</span>
           <% elsif agent_signed_in? %>
             <span class="brand-tag" style="background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe;">Temsilci Masası</span>
           <% else %>
@@ -40,18 +42,23 @@
           <a href="/" class="nav-link">
             ← Ana Sayfa
           </a>
-          <a href="<%= portal_path %>" class="btn btn-primary btn-sm">
+          <a href="<%= customer_portal_path %>" class="btn btn-primary btn-sm">
             + Yeni Talep Aç
           </a>
           <% if agent_signed_in? %>
             <a href="<%= tickets_path %>" class="nav-link" style="color: #6d28d9; font-weight: 600;">
               💻 Temsilci Masasına Dön ↗
             </a>
-          <% else %>
-            <a href="<%= agent_login_path %>" class="nav-link" style="color: var(--text-muted); font-size: 0.8rem;">
-              Yetkili Girişi 🔒
-            </a>
           <% end %>
+
+        <% elsif controller_name == 'sessions' %>
+          <!-- TEMSİLCİ GİRİŞ EKRANINDA GÖRÜNEN MENÜ -->
+          <a href="/" class="nav-link">
+            ← Ana Sayfa
+          </a>
+          <a href="<%= customer_portal_path %>" class="btn btn-secondary btn-sm">
+            Müşteri Portalı (/musteri) ↗
+          </a>
 
         <% elsif agent_signed_in? %>
           <!-- TEMSİLCİ GİRİŞİ YAPILMIŞSA GÖRÜNEN YÖNETİM MENÜSÜ -->
@@ -64,8 +71,8 @@
           <a href="<%= tickets_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
             SLA Alarmları
           </a>
-          <a href="<%= portal_path %>" target="_blank" class="nav-link" style="color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 600;">
-            📱 Müşteri Olarak Test Et ↗
+          <a href="<%= customer_portal_path %>" target="_blank" class="nav-link" style="color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; font-weight: 600;">
+            📱 Müşteri Portalı (/musteri) ↗
           </a>
 
           <!-- Aktif Temsilci Profili & Çıkış -->
@@ -81,11 +88,11 @@
 
         <% else %>
           <!-- GİRİŞ YAPILMAMIŞ GİRİŞ SAYFASI MENÜSÜ -->
-          <a href="<%= portal_path %>" class="btn btn-secondary btn-sm" style="font-weight: 600;">
-            Müşteri Girişi (Talep Aç)
+          <a href="<%= customer_portal_path %>" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+            Müşteri Girişi (/musteri)
           </a>
-          <a href="<%= agent_login_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
-            🔒 Yetkili Temsilci Girişi →
+          <a href="<%= agent_portal_path %>" class="btn btn-primary btn-sm" style="font-weight: 600;">
+            🔒 Yetkili Temsilci Girişi (/temsilci) →
           </a>
         <% end %>
       </nav>

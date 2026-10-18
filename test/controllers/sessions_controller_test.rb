@@ -28,4 +28,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     delete agent_logout_url
     assert_redirected_to root_url
   end
+
+  test "/temsilci adresi yetkili temsilci giriş sayfasını açar" do
+    get agent_portal_url
+    assert_response :success
+    assert_select "h1", text: /Yetkili Temsilci Girişi/
+  end
 end

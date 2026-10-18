@@ -21,6 +21,15 @@ class PortalController < ApplicationController
     @new_comment = @ticket.comments.build(author_role: "customer")
   end
 
+  def lookup
+    ticket_id = params[:ticket_id].to_s.gsub(/\D/, "")
+    if ticket_id.present? && (ticket = Ticket.find_by(id: ticket_id))
+      redirect_to portal_ticket_path(ticket), notice: "##{ticket.id} numaralı talebiniz başarıyla bulundu."
+    else
+      redirect_to customer_portal_path, alert: "Girdiğiniz numara ile kayıtlı bir destek talebi bulunamadı."
+    end
+  end
+
   def reply
     @ticket = Ticket.find(params[:id])
     body_text = params.dig(:comment, :body).to_s.strip

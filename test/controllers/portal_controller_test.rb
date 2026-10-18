@@ -60,4 +60,9 @@ class PortalControllerTest < ActionDispatch::IntegrationTest
     assert @ticket.reload.status_solved?, "Gratitude Guard bilet durumunu çözüldü tutmalı"
     assert_equal 1, @ticket.gratitude_count
   end
+
+  test "müşteri /musteri adresi üzerinden bilet sorgulayabilir" do
+    get customer_lookup_url, params: { ticket_id: @ticket.id.to_s }
+    assert_redirected_to portal_ticket_url(@ticket)
+  end
 end
