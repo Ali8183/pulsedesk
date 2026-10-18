@@ -16,11 +16,11 @@
 
   <div class="card" style="padding: 1.75rem;">
     <!-- Sekme Geçişi: Giriş Yap vs Kayıt Ol -->
-    <div style="display: flex; background: var(--bg-body, #f1f5f9); padding: 4px; border-radius: 10px; margin-bottom: 1.5rem; gap: 4px; border: 1px solid var(--border-subtle, #e2e8f0);">
-      <button type="button" id="tab-btn-login" onclick="switchCustomerTab('login')" style="flex: 1; padding: 0.6rem 0.75rem; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+    <div class="tab-container">
+      <button type="button" id="tab-btn-login" class="tab-btn active" onclick="switchCustomerTab('login')">
         🔑 Giriş Yap
       </button>
-      <button type="button" id="tab-btn-register" onclick="switchCustomerTab('register')" style="flex: 1; padding: 0.6rem 0.75rem; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);">
+      <button type="button" id="tab-btn-register" class="tab-btn" onclick="switchCustomerTab('register')">
         ✨ Yeni Kayıt Ol
       </button>
     </div>
@@ -92,7 +92,7 @@
         </div>
       <% end %>
 
-      <div style="margin-top: 1.25rem; padding: 0.75rem 0.9rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 0.78rem; color: #166534; line-height: 1.4;">
+      <div class="register-info-box">
         🛡️ Kayıt olduktan sonra hemen destek talebinizi açabilir, temsilcilerimizin anlık yanıtlarını ve çözüm sürecini panelinizden takip edebilirsiniz.
       </div>
     </div>
@@ -120,13 +120,8 @@
       loginSec.style.display = 'none';
       regSec.style.display = 'block';
 
-      loginBtn.style.background = 'transparent';
-      loginBtn.style.color = 'var(--text-muted)';
-      loginBtn.style.boxShadow = 'none';
-
-      regBtn.style.background = 'white';
-      regBtn.style.color = 'var(--text-primary)';
-      regBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+      loginBtn.classList.remove('active');
+      regBtn.classList.add('active');
 
       var nameInput = document.getElementById('customer-register-name');
       if (nameInput) nameInput.focus();
@@ -134,13 +129,8 @@
       regSec.style.display = 'none';
       loginSec.style.display = 'block';
 
-      regBtn.style.background = 'transparent';
-      regBtn.style.color = 'var(--text-muted)';
-      regBtn.style.boxShadow = 'none';
-
-      loginBtn.style.background = 'white';
-      loginBtn.style.color = 'var(--text-primary)';
-      loginBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+      regBtn.classList.remove('active');
+      loginBtn.classList.add('active');
 
       var emailInput = document.getElementById('customer-login-email');
       if (emailInput) emailInput.focus();
