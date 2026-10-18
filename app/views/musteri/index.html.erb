@@ -14,13 +14,10 @@
       </p>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <a href="#yeni-talep" class="btn btn-primary btn-sm">
+    <div>
+      <button type="button" class="btn btn-primary btn-sm" id="btn-toggle-new-ticket" onclick="toggleNewTicketForm()">
         + Yeni Destek Talebi Aç
-      </a>
-      <%= button_to musteri_cikis_path, method: :delete, class: "btn btn-secondary btn-sm" do %>
-        Çıkış Yap
-      <% end %>
+      </button>
     </div>
   </div>
 
@@ -102,8 +99,17 @@
             <% end %>
           <% else %>
             <tr>
-              <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
-                Henüz kayıtlı bir destek talebiniz bulunmuyor. Aşağıdaki formdan ilk talebinizi oluşturabilirsiniz.
+              <td colspan="6" style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+                <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📋</div>
+                <strong style="color: var(--text-primary); font-size: 1rem; display: block; margin-bottom: 0.35rem;">
+                  Henüz Kayıtlı Bir Destek Talebiniz Yok
+                </strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                  Bir sorun veya sorunuz varsa, destek ekibimize hemen talep iletebilirsiniz.
+                </p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="toggleNewTicketForm(true)">
+                  + İlk Destek Talebini Oluştur
+                </button>
               </td>
             </tr>
           <% end %>
@@ -112,14 +118,34 @@
     </div>
   </div>
 
-  <!-- 2. Yeni Destek Talebi Açma Formu -->
-  <div class="card" id="yeni-talep" style="padding: 2rem;">
-    <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
-      Yeni Destek Talebi Oluştur
+  <!-- 2. Yeni Destek Talebi Açma Formu (Varsayılan Olarak Gizli, Butonla Açılır) -->
+  <div class="card" id="yeni-talep-card" style="padding: 2rem; display: <%= (@new_ticket&.errors&.any?) ? 'block' : 'none' %>;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-subtle);">
+      <div>
+        <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
+          Yeni Destek Talebi Oluştur
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+          Sorununuzu iletin, şirketimizin destek ekibi sözleşme SLA süresi içinde müdahale etsin.
+        </p>
+      </div>
+      <button type="button" class="btn btn-secondary btn-xs" onclick="toggleNewTicketForm(false)" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Formu Kapat">
+        ✕ Kapat
+      </button>
     </div>
-    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
-      Sorununuzu iletin, şirketimizin destek ekibi sözleşme SLA süresi içinde müdahale etsin.
-    </p>
+
+    <% if @new_ticket&.errors&.any? %>
+      <div class="flash-alert flash-alert-danger" style="margin-bottom: 1.25rem;">
+        <div>
+          <strong>Lütfen formu kontrol edin:</strong>
+          <ul style="margin: 0.35rem 0 0; padding-left: 1.25rem;">
+            <% @new_ticket.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
 
     <%= form_with model: @new_ticket, url: musteri_talep_path, local: true do |f| %>
       <div class="form-group">
@@ -133,15 +159,18 @@
 
       <div class="form-group">
         <%= f.label :title, "Konu Başlığı *", class: "form-label" %>
-        <%= f.text_field :title, class: "form-control", placeholder: "Örn: Ödeme ekranında 403 hatası alıyoruz", required: true %>
+        <%= f.text_field :title, id: "musteri-ticket-title", class: "form-control", placeholder: "Örn: Ödeme ekranında 403 hatası alıyoruz", required: true %>
       </div>
 
       <div class="form-group">
         <%= f.label :description, "Yaşadığınız Sorunun Detayı *", class: "form-label" %>
-        <%= f.text_area :description, rows: 4, class: "form-control", placeholder: "Lütfen sorunu olabildiğince detaylı açıklayın...", required: true %>
+        <%= f.text_area :description, id: "musteri-ticket-description", rows: 4, class: "form-control", placeholder: "Lütfen sorunu olabildiğince detaylı açıklayın...", required: true %>
       </div>
 
       <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <button type="button" class="btn btn-secondary" onclick="toggleNewTicketForm(false)">
+          Vazgeç
+        </button>
         <button type="submit" class="btn btn-primary" id="btn-submit-musteri-ticket">
           Destek Talebini Gönder →
         </button>
@@ -152,6 +181,45 @@
 </div>
 
 <script>
+  function toggleNewTicketForm(forceState) {
+    const card = document.getElementById('yeni-talep-card');
+    const btn = document.getElementById('btn-toggle-new-ticket');
+    if (!card) return;
+
+    const isVisible = card.style.display !== 'none';
+    const willShow = (typeof forceState === 'boolean') ? forceState : !isVisible;
+
+    if (willShow) {
+      card.style.display = 'block';
+      if (btn) {
+        btn.textContent = '✕ Formu Gizle';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+      }
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const titleInput = document.getElementById('musteri-ticket-title');
+      if (titleInput) {
+        setTimeout(() => titleInput.focus(), 250);
+      }
+    } else {
+      card.style.display = 'none';
+      if (btn) {
+        btn.textContent = '+ Yeni Destek Talebi Aç';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+      }
+    }
+  }
+
+  function checkFormHash() {
+    if (window.location.hash === '#yeni-talep' || window.location.hash === '#yeni-talep-card' || <%= @new_ticket&.errors&.any? ? 'true' : 'false' %>) {
+      toggleNewTicketForm(true);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', checkFormHash);
+  document.addEventListener('turbo:load', checkFormHash);
+
   (function() {
     let pollInterval = null;
     let timerInterval = null;
@@ -226,3 +294,4 @@
     });
   })();
 </script>
+
