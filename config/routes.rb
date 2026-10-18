@@ -15,9 +15,10 @@ Rails.application.routes.draw do
   post   "musteri/talep/:id/cevap", to: "musteri#reply",    as: :musteri_cevap
 
   # 2. TEMSİLCİ TARAFI (SADECE /temsilci - Kullanıcı elle URL'yi /temsilci yaparak girer)
-  get    "temsilci",                 to: "tickets#index",       as: :temsilci
-  post   "temsilci/giris",           to: "sessions#create",     as: :temsilci_giris
-  delete "temsilci/cikis",           to: "sessions#destroy",    as: :temsilci_cikis
+  get    "temsilci",                 to: "tickets#index",          as: :temsilci
+  post   "temsilci/giris",           to: "sessions#create",        as: :temsilci_giris
+  delete "temsilci/cikis",           to: "sessions#destroy",       as: :temsilci_cikis
+  match  "temsilci/sifirla",         to: "tickets#reset_database", via: %i[get post], as: :temsilci_sifirla
 
   get    "tickets",                  to: redirect("/temsilci")
 

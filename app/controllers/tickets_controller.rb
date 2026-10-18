@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TicketsController < ApplicationController
-  before_action :require_agent!, except: %i[index]
+  before_action :require_agent!, except: %i[index reset_database]
   before_action :set_ticket, only: %i[show transition assign simulate_time_travel]
 
   def index
@@ -89,6 +89,12 @@ class TicketsController < ApplicationController
       sla_breached: true
     )
     redirect_to @ticket, alert: "⚡ Zaman Makinesi Tetiklendi: SLA süresi geriye çekildi ve SLA İHLALİ (Breach) simüle edildi!"
+  end
+
+  def reset_database
+    Comment.destroy_all
+    Ticket.destroy_all
+    redirect_to temsilci_path, notice: "Tüm biletler ve veriler başarıyla sıfırlandı. Sistem tertemiz başlangıç durumuna getirildi."
   end
 
   private

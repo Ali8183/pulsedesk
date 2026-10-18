@@ -11,7 +11,10 @@
       Gelen müşteri destek bildirimlerini, öncelik sıralamasını ve SLA çözüm sürelerini buradan yönetin.
     </p>
   </div>
-  <div>
+  <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+    <%= button_to temsilci_sifirla_path, method: :post, class: "btn btn-secondary btn-sm", data: { confirm: "Tüm biletler ve mesajlar silinecek. Sistemi sıfırlamak istediğinize emin misiniz?" }, title: "Sunum öncesi tüm biletleri temizler" do %>
+      🗑️ Verileri Sıfırla
+    <% end %>
     <a href="<%= new_ticket_path %>" class="btn btn-primary" id="btn-new-ticket">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
