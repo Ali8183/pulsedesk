@@ -105,6 +105,25 @@ class MusteriControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, @murat_ticket.gratitude_count
   end
 
+  test "kapatılmış ve arşivlenmiş bir bilete müşteri yeni yanıt gönderemez" do
+    @murat_ticket.transition_to!(:status_open)
+    @murat_ticket.transition_to!(:status_solved)
+    @murat_ticket.transition_to!(:status_closed)
+    assert @murat_ticket.status_closed?
+
+    post musteri_giris_url, params: { email: "murat.demir@global-logistics.com", name: "Murat Demir" }
+
+    assert_no_difference("Comment.count") do
+      post musteri_cevap_url(@murat_ticket), params: {
+        comment: { body: "Kapanmış bilete mesaj yazmaya çalışıyorum" }
+      }
+    end
+
+    assert_redirected_to musteri_ticket_url(@murat_ticket)
+    follow_redirect!
+    assert_select ".flash-alert-danger", text: /kapatılmıştır/
+  end
+
   test "müşteri çıkış yaptığında oturumu temizlenir ve giriş sayfasına yönlendirilir" do
     post musteri_giris_url, params: { email: "murat.demir@global-logistics.com", name: "Murat Demir" }
     delete musteri_cikis_url

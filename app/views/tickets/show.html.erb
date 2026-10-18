@@ -172,37 +172,28 @@
         </h4>
 
         <%= form_with model: [@ticket, @new_comment], local: true, id: "comment-form" do |f| %>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-            <div>
-              <%= f.label :author_role, "Gönderen Rolü", class: "form-label" %>
-              <%= f.select :author_role, [["Destek Temsilcisi Olarak", "agent"], ["Müşteri Olarak", "customer"]], {}, class: "form-control", id: "author-role-select" %>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.84rem; color: var(--text-muted);">
+              Yanıtlayan Temsilci: <strong style="color: var(--text-primary);"><%= current_agent %></strong>
             </div>
-            <div>
-              <%= f.label :author_name, "Gönderen Adı", class: "form-label" %>
-              <%= f.text_field :author_name, value: (@ticket.assigned_agent || "Destek Ekibi"), class: "form-control", id: "author-name-input" %>
-            </div>
+            <span style="font-size: 0.75rem; background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; padding: 2px 8px; border-radius: 9999px; font-weight: 600;">
+              Resmi Temsilci Yanıtı
+            </span>
           </div>
 
           <div class="form-group">
-            <%= f.label :body, "Mesaj İçeriği", class: "form-label" %>
-            <%= f.text_area :body, rows: 3, class: "form-control", id: "comment-body-textarea", placeholder: "Mesajınızı buraya yazın..." %>
+            <%= f.text_area :body, rows: 3, class: "form-control", id: "comment-body-textarea", placeholder: "Müşteriye iletilecek çözüm veya bilgilendirme mesajınızı yazın...", required: true %>
           </div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
             <button type="submit" class="btn btn-primary" id="btn-submit-comment">
-              Mesajı Gönder
+              Müşteriye Yanıt Gönder →
             </button>
 
-            <!-- Sunum Hızlı Doldurma Butonları -->
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillGratitude()">
-                ✨ Teşekkür Mesajı Doldur (Gratitude Guard Testi)
-              </button>
-
-              <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillObjection()">
-                ⚠️ İtiraz Mesajı Doldur (Yeniden Açılma Testi)
-              </button>
-            </div>
+            <!-- Hızlı Yanıt Şablonu -->
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillAgentSolved()">
+              ⚡ "Sorununuz Çözüldü" Şablonunu Ekle
+            </button>
           </div>
         <% end %>
       </div>
@@ -319,16 +310,8 @@
 </div>
 
 <script>
-  function quickFillGratitude() {
-    document.getElementById('author-role-select').value = 'customer';
-    document.getElementById('author-name-input').value = '<%= j @ticket.customer_name %>';
-    document.getElementById('comment-body-textarea').value = 'Çok teşekkür ederim, elinize sağlık problemim tamamen çözüldü!';
-  }
-
-  function quickFillObjection() {
-    document.getElementById('author-role-select').value = 'customer';
-    document.getElementById('author-name-input').value = '<%= j @ticket.customer_name %>';
-    document.getElementById('comment-body-textarea').value = 'Teşekkürler ancak sayfayı yenilediğimde aynı hata tekrar devam ediyor, bakar mısınız?';
+  function quickFillAgentSolved() {
+    document.getElementById('comment-body-textarea').value = 'Merhaba <%= j @ticket.customer_name %>, bildirdiğiniz konu teknik ekibimizce incelenmiş ve gerekli düzeltme yapılmıştır. Lütfen kontrol edip bize bildirin.';
   }
 
   // Sayfa Yenilemesiz Canlı Yorum ve Durum Senkronizasyonu

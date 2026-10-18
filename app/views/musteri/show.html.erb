@@ -107,34 +107,44 @@
     </div>
   </div>
 
-  <!-- Müşteri Yanıt Formu -->
-  <div class="card" style="padding: 1.5rem;">
-    <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
-      Destek Ekibine Yanıt Yaz
-    </h4>
+  <!-- Müşteri Yanıt Formu veya Arşiv Bilgisi -->
+  <% if @ticket.status_closed? %>
+    <div class="card" style="padding: 1.5rem; background: #f8fafc; text-align: center; border: 1px dashed var(--border-subtle);">
+      <div style="font-size: 1.3rem; margin-bottom: 0.35rem;">📦</div>
+      <strong style="color: var(--text-primary); font-size: 0.95rem;">Bu Destek Talebi Çözülerek Kapatılmıştır</strong>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.35rem;">
+        Talep tamamlandığı için arşivlenmiştir. Farklı bir konu veya sorunuz varsa <a href="<%= musteri_path %>#yeni-talep" style="color: var(--primary); font-weight: 600;">yeni bir destek talebi açabilirsiniz</a>.
+      </p>
+    </div>
+  <% else %>
+    <div class="card" style="padding: 1.5rem;">
+      <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">
+        Destek Ekibine Yanıt Yaz
+      </h4>
 
-    <%= form_with url: musteri_cevap_path(@ticket), method: :post, local: true do |f| %>
-      <div class="form-group">
-        <textarea name="comment[body]" id="musteri-reply-body" class="form-control" rows="3" placeholder="Sorunuz veya cevabınız varsa buraya yazın..." required></textarea>
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
-        <button type="submit" class="btn btn-primary">
-          Mesajı Gönder
-        </button>
-
-        <!-- Canlı Demo Hızlı Butonları -->
-        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerThanks()">
-            ✨ "Çok Teşekkürler" Yaz (Nezaket Testi)
-          </button>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerIssue()">
-            ⚠️ "Sorun Sürüyor" Yaz (Yeniden Açma Testi)
-          </button>
+      <%= form_with url: musteri_cevap_path(@ticket), method: :post, local: true do |f| %>
+        <div class="form-group">
+          <textarea name="comment[body]" id="musteri-reply-body" class="form-control" rows="3" placeholder="Sorunuz veya cevabınız varsa buraya yazın..." required></textarea>
         </div>
-      </div>
-    <% end %>
-  </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <button type="submit" class="btn btn-primary">
+            Mesajı Gönder
+          </button>
+
+          <!-- Canlı Demo Hızlı Butonları -->
+          <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerThanks()">
+              ✨ "Çok Teşekkürler" Yaz (Nezaket Testi)
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="quickFillCustomerIssue()">
+              ⚠️ "Sorun Sürüyor" Yaz (Yeniden Açma Testi)
+            </button>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
 </div>
 

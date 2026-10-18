@@ -1,29 +1,37 @@
 # frozen_string_literal: true
 
 class CommentsController < ApplicationController
+  before_action :require_agent!
+
   def create
     @ticket = Ticket.find(params[:ticket_id])
-    @comment = @ticket.comments.build(comment_params)
 
-    # Önceki durum bilgisini tutalım
-    was_solved = @ticket.status_solved?
+    if @ticket.status_closed?
+      redirect_to @ticket, alert: "Kapatılmış ve arşivlenmiş biletlere yeni mesaj eklenemez."
+      return
+    end
+
+    body_text = params.dig(:comment, :body).to_s.strip
+    if body_text.blank?
+      redirect_to @ticket, alert: "Lütfen bir yanıt metni girin."
+      return
+    end
+
+    @comment = @ticket.comments.build(
+      author_name: current_agent,
+      author_role: "agent",
+      body: body_text
+    )
 
     if @comment.save
-      if @comment.is_gratitude?
-        redirect_to @ticket, notice: "✨ Akıllı Nezaket Koruması (Gratitude Guard) Devrede: Müşterinin teşekkür mesajı algılandı. Bilet 'Çözüldü' durumunda tutuldu!"
-      elsif was_solved && @ticket.reload.status_open?
-        redirect_to @ticket, alert: "⚠️ Müşteri mesajında yeni bir sorun veya soru algılandı. Bilet temsilci incelemesi için yeniden 'Açık' duruma getirildi."
-      else
-        redirect_to @ticket, notice: "Mesaj başarıyla kaydedildi."
+      # Zendesk Standardı: Temsilci yanıt verdiğinde bilet 'status_pending' (Müşteri Yanıtı Bekleniyor) durumuna geçer
+      if @ticket.status_new? || @ticket.status_open?
+        @ticket.transition_to!(:status_pending)
       end
+
+      redirect_to @ticket, notice: "Yanıtınız başarıyla kaydedildi ve müşteriye iletildi."
     else
       redirect_to @ticket, alert: "Mesaj kaydedilemedi: #{@comment.errors.full_messages.to_sentence}"
     end
-  end
-
-  private
-
-  def comment_params
-    params.require(:comment).permit(:author_name, :author_role, :body)
   end
 end

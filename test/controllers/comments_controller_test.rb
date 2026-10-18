@@ -13,38 +13,48 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "temsilci yanıt eklediğinde bilet açık duruma geçer" do
+  test "giriş yapmamış kullanıcı bilet yorumu ekleyemez ve temsilci girişine yönlendirilir" do
+    post ticket_comments_url(@ticket), params: {
+      comment: { body: "Yetkisiz yorum denemesi" }
+    }
+    assert_redirected_to temsilci_url
+  end
+
+  test "temsilci yanıt eklediğinde yorum kaydedilir ve bilet yanıt bekleniyor (pending) durumuna geçer" do
+    post temsilci_giris_url, params: { email: "ahmet@pulsedesk.com", password: "admin" }
+
     assert_difference("Comment.count", 1) do
       post ticket_comments_url(@ticket), params: {
         comment: {
-          author_name: "Destek Uzmanı Ahmet",
-          author_role: "agent",
           body: "Merhaba Fatma Hanım, şifre sıfırlama linki e-postanıza tekrar gönderildi."
         }
       }
     end
 
     assert_redirected_to ticket_url(@ticket)
-    assert @ticket.reload.status_open?
+    assert @ticket.reload.status_pending?, "Temsilci yanıt verdiğinde bilet 'Yanıt Bekleniyor' durumuna geçmelidir"
+
+    comment = Comment.last
+    assert_equal "Ahmet Kaya", comment.author_name
+    assert_equal "agent", comment.author_role
   end
 
-  test "çözülmüş bilete teşekkür yanıtı eklendiğinde Gratitude Guard bilet durumunu çözüldü tutar" do
+  test "kapatılmış ve arşivlenmiş bir bilete yeni yorum eklenemez" do
     @ticket.transition_to!(:status_open)
     @ticket.transition_to!(:status_solved)
-    assert @ticket.status_solved?
+    @ticket.transition_to!(:status_closed)
+    assert @ticket.status_closed?
 
-    assert_difference("Comment.count", 1) do
+    post temsilci_giris_url, params: { email: "ahmet@pulsedesk.com", password: "admin" }
+
+    assert_no_difference("Comment.count") do
       post ticket_comments_url(@ticket), params: {
-        comment: {
-          author_name: "Fatma Demir",
-          author_role: "customer",
-          body: "Çok teşekkürler, şifremi başarıyla yeniledim!"
-        }
+        comment: { body: "Arşivlenmiş bilete mesaj yazılamaz" }
       }
     end
 
     assert_redirected_to ticket_url(@ticket)
-    assert @ticket.reload.status_solved?, "Bilet 'Çözüldü' kalmalıdır"
-    assert_equal 1, @ticket.gratitude_count
+    follow_redirect!
+    assert_select ".flash-alert-danger", text: /Kapatılmış ve arşivlenmiş/
   end
 end

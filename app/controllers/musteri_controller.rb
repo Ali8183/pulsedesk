@@ -66,6 +66,11 @@ class MusteriController < ApplicationController
       return
     end
 
+    if @ticket.status_closed?
+      redirect_to musteri_ticket_path(@ticket), alert: "Bu destek talebi kapatılmıştır ve arşivlenmiştir. Yeni bir sorun için lütfen yeni bir talep oluşturun."
+      return
+    end
+
     body_text = params.dig(:comment, :body).to_s.strip
     if body_text.present?
       @comment = @ticket.comments.build(
@@ -75,7 +80,13 @@ class MusteriController < ApplicationController
       )
 
       if @comment.save
-        redirect_to musteri_ticket_path(@ticket), notice: "Mesajınız destek ekibine iletildi."
+        if @comment.is_gratitude?
+          redirect_to musteri_ticket_path(@ticket), notice: "✨ Akıllı Nezaket Koruması: Teşekkür mesajınız kaydedildi. Bilet 'Çözüldü' durumunda tutuldu!"
+        elsif @ticket.reload.status_open?
+          redirect_to musteri_ticket_path(@ticket), alert: "⚠️ Sorununuzun devam ettiği algılandı. Bilet temsilcinin kuyruğuna yeniden 'Açık' olarak iletildi."
+        else
+          redirect_to musteri_ticket_path(@ticket), notice: "Mesajınız destek ekibine iletildi."
+        end
       else
         redirect_to musteri_ticket_path(@ticket), alert: "Mesaj gönderilemedi."
       end

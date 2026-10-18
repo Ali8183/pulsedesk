@@ -112,10 +112,10 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `38 runs, 143 assertions, 0 failures, 0 errors, 0 skips` (38/38 %100 Yeşil).
+* **Test Sonucu:** `40 runs, 152 assertions, 0 failures, 0 errors, 0 skips` (40/40 %100 Yeşil).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
-* **Müşteri Portalı:** `test/controllers/musteri_controller_test.rb` ile `/musteri` müşteri oturumu ve bilet izolasyonu uçtan uca test edilmiştir.
-* **Yetkili Temsilci Masası:** `test/controllers/sessions_controller_test.rb` ve `test/controllers/tickets_controller_test.rb` ile `/temsilci` bilet yönetimi doğrulanmıştır.
+* **Müşteri Portalı:** `test/controllers/musteri_controller_test.rb` ile `/musteri` müşteri oturumu, yetkilendirme ve bilet izolasyonu uçtan uca test edilmiştir.
+* **Yetkili Temsilci Masası:** `test/controllers/sessions_controller_test.rb`, `test/controllers/tickets_controller_test.rb` ve `test/controllers/comments_controller_test.rb` ile `/temsilci` bilet yönetimi doğrulanmıştır.
 
 ---
 
