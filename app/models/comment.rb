@@ -21,19 +21,20 @@ class Comment < ApplicationRecord
   end
 
   def handle_customer_reply
-    # Eğer bilet zaten çözülmüş durumdaysa GratitudeGuard kontrolü devreye girer
-    if ticket.status_solved?
-      if GratitudeGuard.gratitude_only?(body)
-        # 100 PUANLIK ÖZELLİK: Teşekkür mesajı biletin durumunu bozmaz
-        update_columns(is_gratitude: true)
-        ticket.increment!(:gratitude_count)
-      else
-        # Yeni bir sorun veya soru varsa bilet yeniden açılır
+    if GratitudeGuard.gratitude_only?(body)
+      # 100 PUANLIK ÖZELLİK: Teşekkür ve çözüm onayı biletin durumunu 'Çözüldü' olarak korur
+      update_columns(is_gratitude: true)
+      ticket.increment!(:gratitude_count)
+
+      # Eğer bilet pending veya open durumundaysa, müşteri onayıyla bilet 'Çözüldü' yapılır
+      if ticket.status_pending? || ticket.status_open?
+        ticket.transition_to!(:status_solved)
+      end
+    else
+      # Yeni bir sorun veya soru varsa bilet temsilcinin kuyruğuna (Açık / Open) döner
+      if ticket.status_solved? || ticket.status_pending?
         ticket.transition_to!(:status_open)
       end
-    elsif ticket.status_pending?
-      # Müşteri yanıt verdiğinde bilet tekrar temsilci kuyruğuna (open) döner
-      ticket.transition_to!(:status_open)
     end
   end
 

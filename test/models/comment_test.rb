@@ -64,4 +64,32 @@ class CommentTest < ActiveSupport::TestCase
     assert @ticket.reload.status_open?
     assert @ticket.first_responded_at.present?
   end
+
+  test "kullanıcı şablonundaki 'Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!' mesajı Gratitude Guard tarafından korunur" do
+    @ticket.transition_to!(:status_open)
+    @ticket.transition_to!(:status_solved)
+
+    comment = @ticket.comments.create!(
+      author_name: @ticket.customer_name,
+      author_role: "customer",
+      body: "Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!"
+    )
+
+    assert comment.is_gratitude?, "Şablon mesajı teşekkür olarak tanınmalı"
+    assert @ticket.reload.status_solved?, "Bilet 'Çözüldü' olarak kalmalı"
+  end
+
+  test "bekleyen (pending) bilete müşteri teşekkür ettiğinde bilet çözüldü durumuna geçer" do
+    @ticket.transition_to!(:status_open)
+    @ticket.transition_to!(:status_pending)
+
+    comment = @ticket.comments.create!(
+      author_name: @ticket.customer_name,
+      author_role: "customer",
+      body: "Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!"
+    )
+
+    assert comment.is_gratitude?
+    assert @ticket.reload.status_solved?
+  end
 end
