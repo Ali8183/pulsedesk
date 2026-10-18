@@ -88,16 +88,16 @@
 
     <!-- Filtre Butonları -->
     <div class="filter-group">
-      <a href="<%= tickets_path %>" class="filter-pill <%= 'active' if params[:filter].blank? %>">
+      <a href="<%= temsilci_path %>" class="filter-pill <%= 'active' if params[:filter].blank? %>">
         Tümü (<%= @total_count %>)
       </a>
-      <a href="<%= tickets_path(filter: 'open') %>" class="filter-pill <%= 'active' if params[:filter] == 'open' %>">
+      <a href="<%= temsilci_path(filter: 'open') %>" class="filter-pill <%= 'active' if params[:filter] == 'open' %>">
         Açık Kuyruk (<%= @open_count %>)
       </a>
-      <a href="<%= tickets_path(filter: 'solved') %>" class="filter-pill <%= 'active' if params[:filter] == 'solved' %>">
+      <a href="<%= temsilci_path(filter: 'solved') %>" class="filter-pill <%= 'active' if params[:filter] == 'solved' %>">
         Çözülenler
       </a>
-      <a href="<%= tickets_path(filter: 'breached') %>" class="filter-pill breached-tab <%= 'active' if params[:filter] == 'breached' %>">
+      <a href="<%= temsilci_path(filter: 'breached') %>" class="filter-pill breached-tab <%= 'active' if params[:filter] == 'breached' %>">
         SLA Aşımı (<%= @breached_count %>)
       </a>
     </div>

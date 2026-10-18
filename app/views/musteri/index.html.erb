@@ -1,0 +1,146 @@
+<div style="max-width: 960px; margin: 0 auto 3rem;">
+
+  <!-- Müşteri Başlık & Profil Alanı -->
+  <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+    <div>
+      <div style="font-size: 0.8rem; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+        Müşteri Destek Portalı
+      </div>
+      <h1 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary);">
+        Taleplerim & Destek Merkezi
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.88rem;">
+        Aktif Müşteri: <strong><%= current_customer_name %></strong> (<%= current_customer_email %>)
+      </p>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <a href="#yeni-talep" class="btn btn-primary btn-sm">
+        + Yeni Destek Talebi Aç
+      </a>
+      <%= button_to musteri_cikis_path, method: :delete, class: "btn btn-secondary btn-sm" do %>
+        Çıkış Yap
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 1. Müşterinin Kendi Talepleri Tablosu -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+      <div class="card-title">
+        Destek Taleplerim (<%= @tickets.count %>)
+      </div>
+      <span style="font-size: 0.78rem; color: var(--text-muted);">
+        Yalnızca sizin e-posta adresinize (<%= current_customer_email %>) ait talepler listelenir.
+      </span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Bilet No</th>
+            <th style="width: 100px;">Öncelik</th>
+            <th>Konu Başlığı</th>
+            <th style="width: 120px;">Durum</th>
+            <th style="width: 150px;">Oluşturulma</th>
+            <th style="width: 100px; text-align: right;">İşlem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @tickets.any? %>
+            <% @tickets.each do |ticket| %>
+              <tr>
+                <td style="color: var(--text-muted); font-weight: 600;">
+                  #<%= ticket.id %>
+                </td>
+
+                <td>
+                  <span class="badge badge-<%= ticket.priority %>">
+                    <%= ticket.human_priority_name %>
+                  </span>
+                </td>
+
+                <td>
+                  <a href="<%= musteri_ticket_path(ticket) %>" class="ticket-link">
+                    <%= ticket.title %>
+                  </a>
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    İlgilenen Temsilci: <%= ticket.assigned_agent.presence || "Sıraya alındı (Atanıyor)" %>
+                  </div>
+                </td>
+
+                <td>
+                  <% status_class = case ticket.status
+                     when "status_new" then "new"
+                     when "status_open" then "open"
+                     when "status_pending" then "pending"
+                     when "status_solved" then "solved"
+                     when "status_closed" then "closed"
+                     end %>
+                  <span class="badge badge-<%= status_class %>">
+                    <%= ticket.human_status_name %>
+                  </span>
+                </td>
+
+                <td style="font-size: 0.8rem; color: var(--text-muted);">
+                  <%= ticket.created_at.strftime("%d.%m.%Y %H:%M") %>
+                </td>
+
+                <td style="text-align: right;">
+                  <a href="<%= musteri_ticket_path(ticket) %>" class="btn btn-secondary btn-sm">
+                    Görüntüle →
+                  </a>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                Henüz kayıtlı bir destek talebiniz bulunmuyor. Aşağıdaki formdan ilk talebinizi oluşturabilirsiniz.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. Yeni Destek Talebi Açma Formu -->
+  <div class="card" id="yeni-talep" style="padding: 2rem;">
+    <div style="font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.25rem;">
+      Yeni Destek Talebi Oluştur
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+      Sorununuzu iletin, şirketimizin destek ekibi sözleşme SLA süresi içinde müdahale etsin.
+    </p>
+
+    <%= form_with model: @new_ticket, url: musteri_talep_path, local: true do |f| %>
+      <div class="form-group">
+        <%= f.label :priority, "Talebin Aciliyeti *", class: "form-label" %>
+        <%= f.select :priority, [
+          ["⚡ Acil - Kritik Arıza (2 Saat Hedef)", "urgent"],
+          ["🔴 Yüksek Öncelik (4 Saat Hedef)", "high"],
+          ["🔵 Normal Talep (8 Saat Hedef)", "medium"]
+        ], { selected: "urgent" }, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :title, "Konu Başlığı *", class: "form-label" %>
+        <%= f.text_field :title, class: "form-control", placeholder: "Örn: Ödeme ekranında 403 hatası alıyoruz", required: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :description, "Yaşadığınız Sorunun Detayı *", class: "form-label" %>
+        <%= f.text_area :description, rows: 4, class: "form-control", placeholder: "Lütfen sorunu olabildiğince detaylı açıklayın...", required: true %>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; align-items: center; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
+        <button type="submit" class="btn btn-primary" id="btn-submit-musteri-ticket">
+          Destek Talebini Gönder →
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+</div>

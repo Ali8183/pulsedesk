@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
 
   def new
     if agent_signed_in?
-      redirect_to tickets_path, notice: "Zaten #{current_agent} olarak oturumunuz açık."
+      redirect_to temsilci_path, notice: "Zaten #{current_agent} olarak oturumunuz açık."
     end
   end
 
@@ -24,7 +24,7 @@ class SessionsController < ApplicationController
       session[:agent_name] = agent_info[:name]
       session[:agent_title] = agent_info[:title]
 
-      redirect_to tickets_path, notice: "Hoş geldiniz, #{agent_info[:name]}. Temsilci masasına başarıyla giriş yapıldı."
+      redirect_to temsilci_path, notice: "Hoş geldiniz, #{agent_info[:name]}. Temsilci masasına başarıyla giriş yapıldı."
     else
       flash.now[:alert] = "Geçersiz temsilci e-posta adresi veya şifre. (Demo Şifre: admin)"
       render :new, status: :unprocessable_entity
@@ -36,6 +36,6 @@ class SessionsController < ApplicationController
     session[:agent_name] = nil
     session[:agent_title] = nil
 
-    redirect_to root_path, notice: "Temsilci oturumu güvenli bir şekilde kapatıldı."
+    redirect_to temsilci_path, notice: "Temsilci oturumu güvenli bir şekilde kapatıldı."
   end
 end

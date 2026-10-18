@@ -15,7 +15,7 @@
   </div>
 
   <div class="card" style="padding: 2rem;">
-    <%= form_with url: agent_login_path, method: :post, local: true do |f| %>
+    <%= form_with url: temsilci_giris_path, method: :post, local: true do |f| %>
       <div class="form-group">
         <%= f.label :email, "Kurumsal E-Posta *", class: "form-label" %>
         <%= f.email_field :email, id: "login-email", value: "ahmet@pulsedesk.com", class: "form-control", placeholder: "ad.soyad@pulsedesk.com", required: true %>
@@ -43,7 +43,7 @@
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <%= button_to agent_login_path(email: "ahmet@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+        <%= button_to temsilci_giris_path(email: "ahmet@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
           <span>👤</span>
           <div style="text-align: left; margin-left: 0.4rem;">
             <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Ahmet Kaya</div>
@@ -51,7 +51,7 @@
           </div>
         <% end %>
 
-        <%= button_to agent_login_path(email: "selin@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+        <%= button_to temsilci_giris_path(email: "selin@pulsedesk.com", password: "admin", quick_login: "1"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
           <span>👤</span>
           <div style="text-align: left; margin-left: 0.4rem;">
             <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Selin Yılmaz</div>
@@ -67,8 +67,8 @@
       ← Ana Sayfaya Dön
     </a>
     <span style="color: var(--border-strong); margin: 0 0.5rem;">•</span>
-    <a href="<%= portal_path %>" style="color: var(--primary); font-size: 0.84rem; text-decoration: none; font-weight: 500;">
-      Müşteri Olarak Destek Al ↗
+    <a href="/musteri" style="color: var(--primary); font-size: 0.84rem; text-decoration: none; font-weight: 500;">
+      Müşteri Destek Portalı (/musteri) 📱
     </a>
   </div>
 

@@ -12,14 +12,14 @@
     </h1>
 
     <p style="font-size: 1.1rem; color: var(--text-secondary); max-width: 680px; margin: 0 auto; line-height: 1.6;">
-      PulseDesk; müşterilerin dışarıdan talep açtığı, destek ekiplerinin sözleşme sürelerine (SLA) göre biletleri çözdüğü yeni nesil bir yardım masası platformudur.
+      PulseDesk; müşterilerin kendi taleplerini açıp takip ettiği, destek ekiplerinin sözleşme sürelerine (SLA) göre biletleri çözdüğü yeni nesil destek masasıdır.
     </p>
   </div>
 
-  <!-- İKİ AYRI KAPI (MÜŞTERİ vs TEMSİLCİ) -->
+  <!-- SADECE İKİ KAPI: MÜŞTERİ vs TEMSİLCİ -->
   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 3.5rem;">
     
-    <!-- MÜŞTERİ KAPISI -->
+    <!-- 1. MÜŞTERİ KAPISI (/musteri) -->
     <div class="card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid var(--border-subtle); transition: all 0.2s ease;">
       <div>
         <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
@@ -32,21 +32,21 @@
           Müşteri Bölümü
         </div>
         <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem;">
-          Destek Almak İstiyorum
+          Müşteri Girişi & Taleplerim
         </h2>
         <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
-          Bir arıza, ödeme sorunu veya teknik destek ihtiyacınız mı var? Müşteri portalından anında bilet oluşturun, uzmanımız ilgilensin.
+          E-postanızla giriş yaparak yalnızca kendi açtığınız biletleri listeleyin, temsilciyle yazışın veya anında yeni bir destek talebi oluşturun.
         </p>
       </div>
 
       <div>
-        <a href="<%= customer_portal_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center;">
-          📱 Müşteri Portalı (/musteri) →
+        <a href="/musteri" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center;">
+          📱 Müşteri Girişi (/musteri) →
         </a>
       </div>
     </div>
 
-    <!-- TEMSİLCİ KAPISI -->
+    <!-- 2. TEMSİLCİ KAPISI (/temsilci) -->
     <div class="card" style="padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid #3b82f6; background: #fafcff; transition: all 0.2s ease; box-shadow: var(--shadow-md);">
       <div>
         <div style="width: 48px; height: 48px; border-radius: 12px; background: #2563eb; color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);">
@@ -56,26 +56,20 @@
         </div>
 
         <div style="font-size: 0.78rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
-          Destek Ekibi & Temsilciler
+          Destek Ekibi & Yetkili Masası
         </div>
         <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.75rem;">
-          Temsilci Masası (Yönetim)
+          Temsilci Girişi & Yönetim
         </h2>
         <p style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem;">
-          Gelen bilet kuyruğunu, acil SLA geri sayım sayaçlarını, durum geçişlerini ve Nezaket Koruması metriklerini buradan yönetin.
+          Yetkili giriş yaparak sistemdeki gelen tüm müşteri biletlerini inceleyin, geri sayan SLA sürelerini takip edin ve talepleri çözüme kavuşturun.
         </p>
       </div>
 
       <div>
-        <% if agent_signed_in? %>
-          <a href="<%= tickets_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
-            💻 Temsilci Masasına Gir (<%= current_agent %>) →
-          </a>
-        <% else %>
-          <a href="<%= agent_portal_path %>" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
-            🔒 Yetkili Temsilci Girişi (/temsilci) →
-          </a>
-        <% end %>
+        <a href="/temsilci" class="btn btn-primary" style="width: 100%; padding: 0.75rem 1.25rem; font-size: 0.95rem; justify-content: center; background: #1e40af;">
+          🔒 Temsilci Girişi (/temsilci) →
+        </a>
       </div>
     </div>
 
@@ -119,7 +113,7 @@
           Gerçek İki Taraflı Etkileşim
         </h4>
         <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">
-          Müşteri dışarıdan kendi portalından yazar; temsilci şirket içindeki temsilci masasından yanıtlar ve durumu günceller.
+          Müşteri (/musteri) sadece kendi talebini görür ve yazar; temsilci (/temsilci) tüm talepleri yönetir ve yanıtlar.
         </p>
       </div>
     </div>

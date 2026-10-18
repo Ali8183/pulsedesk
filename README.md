@@ -112,25 +112,35 @@ bin/rails db:test:prepare
 bin/rails test
 ```
 
-* **Test Sonucu:** `32 runs, 113 assertions, 0 failures, 0 errors, 0 skips` (32/32 Başarılı).
+* **Test Sonucu:** `38 runs, 143 assertions, 0 failures, 0 errors, 0 skips` (38/38 %100 Yeşil).
 * **Zaman Testleri:** `test/models/ticket_test.rb` içerisinde `travel_to` ile test edilmiştir.
-* **Müşteri Giriş Portalı:** `test/controllers/portal_controller_test.rb` ile `/musteri` uçtan uca test edilmiştir.
-* **Yetkili Temsilci Girişi:** `test/controllers/sessions_controller_test.rb` ile `/temsilci` yetkilendirmesi doğrulanmıştır.
+* **Müşteri Portalı:** `test/controllers/musteri_controller_test.rb` ile `/musteri` müşteri oturumu ve bilet izolasyonu uçtan uca test edilmiştir.
+* **Yetkili Temsilci Masası:** `test/controllers/sessions_controller_test.rb` ve `test/controllers/tickets_controller_test.rb` ile `/temsilci` bilet yönetimi doğrulanmıştır.
 
 ---
 
 ## 7. 5 Dakikalık Sunum Rehberi & Hızlı İpuçları
 
+Sistem yalnızca **2 temel kapıdan / URL'den** oluşur:
+1. **Müşteri Kapısı (`/musteri`):**
+   - Giriş yapılmamışsa: Yalnızca e-posta/isim ile müşteri giriş ekranı.
+   - Giriş yapılmışsa: Sadece o müşteriye ait biletler listelenir (tam müşteri veri izolasyonu) ve yeni bilet formu bulunur.
+2. **Temsilci Masası (`/temsilci`):**
+   - Giriş yapılmamışsa: Yetkili personel giriş ekranı (şifre: `admin` veya 1-tıkla Ahmet Kaya).
+   - Giriş yapılmışsa: Gelen TÜM talepler tablosu, SLA geri sayım sayaçları, atama ve yanıtlama araçları.
+
+### Hocaya Gösterilecek Canlı Akış Senaryosu:
 1. **Giriş (30 sn):** "PulseDesk, Zendesk'in kurumsal biletleme aort diliminin Rails 8 klonudur. Stanley Black & Decker ve Uber gibi F500 firmalarının para ödediği temel iş akışını çözer."
 2. **Canlı Akış (2 dk - Çift Taraflı Deneyim):**
    - **Müşteri Kapısı (`/musteri`):** Telefondan veya gizli sekmeden `/musteri` adresine girip acil bir talep oluşturulur.
-   - **Temsilci Masası (`/temsilci`):** `/temsilci` üzerinden giriş yapılmış ekrana talep sayfa yenilenmeden canlı düşer!
-   - Temsilci atanır ve 'Çözüldü' işaretlenir.
+   - **Temsilci Masası (`/temsilci`):** `/temsilci` ekranına talep sayfa yenilenmeden **canlı olarak düşer**!
+   - Temsilci Ahmet Kaya olarak bilete tıklanır, yanıt yazılır ve durum 'Çözüldü' yapılır.
 3. **Zaman Kuralı & Kod Yeri (1 dk):**
    - **Hocanın Olası Kod Yeri Sorusu:** *"SLA hafta sonunu saymasın kuralını nereye eklersiniz?"*
    - **Cevap:** `app/services/sla_calculator.rb` dosyası içindeki `calculate_due_at` metodu (Satır 24-40). Burada `target += 2.days if target.saturday?` iş günü kontrolü eklenir.
    - **Canlı SLA Aşımı:** Bilet sayfasındaki **"⚡ Zaman Makinesi"** butonuna basılarak SLA aşımı canlıda gösterilir.
-4. **100 Puanlık Nezaket Koruması (1 dk):**
-   - Müşteri portalından veya bilet ekranından **"✨ Hızlı Teşekkür"** gönderilir. Biletin durumu `solved` kalır!
+4. **100 Puanlık Nezaket Koruması (Gratitude Guard) (1 dk):**
+   - Müşteri portalından `/musteri` bilete **"✨ Hızlı Teşekkür"** gönderilir. Biletin durumu `solved` kalır!
    - Ardından **"⚠️ Hızlı İtiraz"** gönderilir. Bilet derhal yeniden `open` olur!
+
 

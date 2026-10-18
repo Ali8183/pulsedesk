@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 class TicketsController < ApplicationController
-  before_action :require_agent!
+  before_action :require_agent!, except: %i[index]
   before_action :set_ticket, only: %i[show transition assign simulate_time_travel]
 
   def index
+    unless agent_signed_in?
+      render "sessions/new"
+      return
+    end
+
     # Tüm biletlerin SLA durumunu arka planda kontrol et
     Ticket.where(status: %i[status_new status_open status_pending], sla_breached: false).find_each do |t|
       t.check_sla_breach!
