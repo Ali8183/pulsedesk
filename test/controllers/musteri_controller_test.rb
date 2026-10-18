@@ -21,20 +21,30 @@ class MusteriControllerTest < ActionDispatch::IntegrationTest
     )
   end
 
-  test "giriş yapmamış müşteri /musteri adresinde giriş ekranını görür" do
+  test "giriş yapmamış müşteri /musteri adresinde giriş ve kayıt ekranını görür" do
     get musteri_url
     assert_response :success
-    assert_select "h1", text: /Müşteri Destek Girişi/
+    assert_select "h1", text: /Müşteri Destek Portalı/
     assert_select "form[action=?]", musteri_giris_path
+    assert_select "form[action=?]", musteri_kayit_path
   end
 
   test "müşteri e-posta adresiyle giriş yapabilir ve kendi paneline yönlendirilir" do
     post musteri_giris_url, params: { email: "murat.demir@global-logistics.com", name: "Murat Demir" }
-    assert_redirected_to musteri_url
+    assert_redirected_to root_url
     follow_redirect!
     assert_response :success
     assert_select "h1", text: /Taleplerim & Destek Merkezi/
     assert_select "body", text: /Murat Demir/
+  end
+
+  test "yeni müşteri kayıt olabilir ve paneline giriş yapar" do
+    post musteri_kayit_url, params: { name: "Ahmet Yeni Müşteri", email: "ahmet.yeni@musteri.com" }
+    assert_redirected_to root_url
+    follow_redirect!
+    assert_response :success
+    assert_select "h1", text: /Taleplerim & Destek Merkezi/
+    assert_select "body", text: /Ahmet Yeni Müşteri/
   end
 
   test "müşteri sadece kendi biletlerini görür, diğer müşterilerin biletlerini göremez" do
@@ -127,10 +137,10 @@ class MusteriControllerTest < ActionDispatch::IntegrationTest
   test "müşteri çıkış yaptığında oturumu temizlenir ve giriş sayfasına yönlendirilir" do
     post musteri_giris_url, params: { email: "murat.demir@global-logistics.com", name: "Murat Demir" }
     delete musteri_cikis_url
-    assert_redirected_to musteri_url
+    assert_redirected_to root_url
 
     # Tekrar paneli açmaya çalıştığında giriş formunu görmeli
     get musteri_url
-    assert_select "h1", text: /Müşteri Destek Girişi/
+    assert_select "h1", text: /Müşteri Destek Portalı/
   end
 end

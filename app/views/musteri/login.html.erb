@@ -1,76 +1,160 @@
-<div style="max-width: 440px; margin: 2rem auto 3rem;">
+<div style="max-width: 460px; margin: 2rem auto 3rem;">
   
-  <div style="text-align: center; margin-bottom: 2rem;">
+  <div style="text-align: center; margin-bottom: 1.75rem;">
     <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);">
       <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
       </svg>
     </div>
     <h1 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 0.35rem;">
-      Müşteri Destek Girişi
+      Müşteri Destek Portalı
     </h1>
-    <p style="color: var(--text-muted); font-size: 0.88rem;">
-      Destek taleplerinizi takip etmek ve yeni talep açmak için e-posta adresinizle giriş yapın.
+    <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.45;">
+      Destek taleplerinizi iletmek veya mevcut taleplerinizin durumunu canlı takip etmek için giriş yapın veya kayıt olun.
     </p>
   </div>
 
-  <div class="card" style="padding: 2rem;">
-    <%= form_with url: musteri_giris_path, method: :post, local: true do |f| %>
-      <div class="form-group">
-        <%= f.label :email, "E-Posta Adresiniz *", class: "form-label" %>
-        <%= f.email_field :email, id: "customer-login-email", value: "murat.demir@global-logistics.com", class: "form-control", placeholder: "ornek@sirketiniz.com", required: true %>
-      </div>
+  <div class="card" style="padding: 1.75rem;">
+    <!-- Sekme Geçişi: Giriş Yap vs Kayıt Ol -->
+    <div style="display: flex; background: var(--bg-body, #f1f5f9); padding: 4px; border-radius: 10px; margin-bottom: 1.5rem; gap: 4px; border: 1px solid var(--border-subtle, #e2e8f0);">
+      <button type="button" id="tab-btn-login" onclick="switchCustomerTab('login')" style="flex: 1; padding: 0.6rem 0.75rem; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: white; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+        🔑 Giriş Yap
+      </button>
+      <button type="button" id="tab-btn-register" onclick="switchCustomerTab('register')" style="flex: 1; padding: 0.6rem 0.75rem; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-muted);">
+        ✨ Yeni Kayıt Ol
+      </button>
+    </div>
 
-      <div class="form-group">
-        <%= f.label :name, "Adınız Soyadınız (İsteğe Bağlı)", class: "form-label" %>
-        <%= f.text_field :name, id: "customer-login-name", value: "Murat Demir", class: "form-control", placeholder: "Örn: Murat Demir" %>
-      </div>
+    <!-- 1. SEKME: GİRİŞ YAP (MEVCUT MÜŞTERİ) -->
+    <div id="section-login" style="display: block;">
+      <%= form_with url: musteri_giris_path, method: :post, local: true do |f| %>
+        <div class="form-group">
+          <%= f.label :email, "Kayıtlı E-Posta Adresiniz *", class: "form-label" %>
+          <%= f.email_field :email, id: "customer-login-email", value: "murat.demir@global-logistics.com", class: "form-control", placeholder: "ornek@sirketiniz.com", required: true %>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: block;">
+            Daha önce talep açarken kullandığınız e-posta adresiniz.
+          </span>
+        </div>
 
-      <div style="margin-top: 1.5rem;">
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.7rem;">
-          Müşteri Portalıma Gir →
-        </button>
-      </div>
-    <% end %>
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.7rem; font-weight: 600;">
+            Giriş Yap ve Taleplerimi Gör →
+          </button>
+        </div>
+      <% end %>
 
-    <!-- Hızlı Demo Girişi (5 Dakikalık Sunumda Zaman Kazandırır) -->
-    <div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle);">
-      <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem; text-align: center;">
-        ⚡ Sunum İçin Hazır Müşteri Seçimi
-      </div>
+      <!-- Hızlı Sunum Seçenekleri -->
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.65rem; text-align: center;">
+          ⚡ Hızlı Sunum İçin Hazır Müşteri Profilleri
+        </div>
 
-      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <%= button_to musteri_giris_path(email: "murat.demir@global-logistics.com", name: "Murat Demir"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
-          <span>🏢</span>
-          <div style="text-align: left; margin-left: 0.4rem;">
-            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Murat Demir (Global Logistics)</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">murat.demir@global-logistics.com</div>
-          </div>
-        <% end %>
+        <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+          <%= button_to musteri_giris_path(email: "murat.demir@global-logistics.com", name: "Murat Demir"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+            <span>🏢</span>
+            <div style="text-align: left; margin-left: 0.4rem;">
+              <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Murat Demir</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">murat.demir@global-logistics.com</div>
+            </div>
+          <% end %>
 
-        <%= button_to musteri_giris_path(email: "deniz@cloud-scale.net", name: "Deniz Arslan"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
-          <span>🏢</span>
-          <div style="text-align: left; margin-left: 0.4rem;">
-            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Deniz Arslan (Cloud Scale)</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">deniz@cloud-scale.net</div>
-          </div>
-        <% end %>
-
-        <%= button_to musteri_giris_path(email: "ali.ogrenci@universite.edu.tr", name: "Ali Öğrenci"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
-          <span>👤</span>
-          <div style="text-align: left; margin-left: 0.4rem;">
-            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Ali Öğrenci (Örnek Müşteri)</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">ali.ogrenci@universite.edu.tr</div>
-          </div>
-        <% end %>
+          <%= button_to musteri_giris_path(email: "deniz@cloud-scale.net", name: "Deniz Arslan"), method: :post, class: "btn btn-secondary btn-sm", style: "width: 100%; justify-content: flex-start; padding: 0.5rem 0.75rem;" do %>
+            <span>🏢</span>
+            <div style="text-align: left; margin-left: 0.4rem;">
+              <div style="font-weight: 600; color: var(--text-primary); font-size: 0.82rem;">Deniz Arslan</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">deniz@cloud-scale.net</div>
+            </div>
+          <% end %>
+        </div>
       </div>
     </div>
+
+    <!-- 2. SEKME: YENİ KAYIT OL -->
+    <div id="section-register" style="display: none;">
+      <%= form_with url: musteri_kayit_path, method: :post, local: true do |f| %>
+        <div class="form-group">
+          <%= f.label :name, "Adınız Soyadınız *", class: "form-label" %>
+          <%= f.text_field :name, id: "customer-register-name", class: "form-control", placeholder: "Örn: Ali Yılmaz", required: true %>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <%= f.label :email, "E-Posta Adresiniz *", class: "form-label" %>
+          <%= f.email_field :email, id: "customer-register-email", class: "form-control", placeholder: "ornek@sirketiniz.com", required: true %>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: block;">
+            Temsilcilerimizin yanıtları ve durum güncellemeleri bu adrese iletilecektir.
+          </span>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.7rem; font-weight: 600; background: #059669; border-color: #059669;">
+            Hesabımı Oluştur ve Panele Gir →
+          </button>
+        </div>
+      <% end %>
+
+      <div style="margin-top: 1.25rem; padding: 0.75rem 0.9rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 0.78rem; color: #166534; line-height: 1.4;">
+        🛡️ Kayıt olduktan sonra hemen destek talebinizi açabilir, temsilcilerimizin anlık yanıtlarını ve çözüm sürecini panelinizden takip edebilirsiniz.
+      </div>
+    </div>
+
   </div>
 
   <div style="text-align: center; margin-top: 1.5rem;">
     <span style="color: var(--text-muted); font-size: 0.82rem;">
-      PulseDesk Müşteri Destek Portalı
+      PulseDesk Müşteri İletişim Portalı
     </span>
   </div>
 
 </div>
+
+<script>
+  function switchCustomerTab(tab) {
+    var loginSec = document.getElementById('section-login');
+    var regSec = document.getElementById('section-register');
+    var loginBtn = document.getElementById('tab-btn-login');
+    var regBtn = document.getElementById('tab-btn-register');
+
+    if (!loginSec || !regSec || !loginBtn || !regBtn) return;
+
+    if (tab === 'register') {
+      loginSec.style.display = 'none';
+      regSec.style.display = 'block';
+
+      loginBtn.style.background = 'transparent';
+      loginBtn.style.color = 'var(--text-muted)';
+      loginBtn.style.boxShadow = 'none';
+
+      regBtn.style.background = 'white';
+      regBtn.style.color = 'var(--text-primary)';
+      regBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+
+      var nameInput = document.getElementById('customer-register-name');
+      if (nameInput) nameInput.focus();
+    } else {
+      regSec.style.display = 'none';
+      loginSec.style.display = 'block';
+
+      regBtn.style.background = 'transparent';
+      regBtn.style.color = 'var(--text-muted)';
+      regBtn.style.boxShadow = 'none';
+
+      loginBtn.style.background = 'white';
+      loginBtn.style.color = 'var(--text-primary)';
+      loginBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+
+      var emailInput = document.getElementById('customer-login-email');
+      if (emailInput) emailInput.focus();
+    }
+  }
+
+  // Sayfa yüklendiğinde veya sunucu parametresiyle sekme belirleme
+  document.addEventListener('DOMContentLoaded', function() {
+    <% if @tab == "register" %>
+      switchCustomerTab('register');
+    <% else %>
+      if (window.location.hash === '#register' || window.location.search.indexOf('tab=register') !== -1) {
+        switchCustomerTab('register');
+      }
+    <% end %>
+  });
+</script>

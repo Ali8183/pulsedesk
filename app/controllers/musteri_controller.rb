@@ -8,22 +8,39 @@ class MusteriController < ApplicationController
       @tickets = Ticket.where("LOWER(customer_email) = ?", current_customer_email.downcase).order(created_at: :desc)
       @new_ticket = Ticket.new(customer_name: current_customer_name, customer_email: current_customer_email, priority: :urgent)
     else
+      @tab = params[:tab] == "register" ? "register" : "login"
       render :login
     end
   end
 
   def login
     email = params[:email].to_s.strip.downcase
-    name = params[:name].to_s.strip
 
     if email.present?
       session[:customer_email] = email
       existing_ticket = Ticket.where("LOWER(customer_email) = ?", email).order(created_at: :desc).first
-      session[:customer_name] = name.presence || existing_ticket&.customer_name || email.split("@").first.titleize
+      session[:customer_name] = params[:name].presence || existing_ticket&.customer_name || email.split("@").first.titleize
 
-      redirect_to musteri_path, notice: "Hoş geldiniz, #{session[:customer_name]}. Destek paneliniz açıldı."
+      redirect_to root_path, notice: "Hoş geldiniz, #{session[:customer_name]}. Destek paneliniz açıldı."
     else
       flash.now[:alert] = "Lütfen geçerli bir e-posta adresi girin."
+      @tab = "login"
+      render :login, status: :unprocessable_entity
+    end
+  end
+
+  def register
+    email = params[:email].to_s.strip.downcase
+    name = params[:name].to_s.strip
+
+    if email.present? && name.present?
+      session[:customer_email] = email
+      session[:customer_name] = name
+
+      redirect_to root_path, notice: "Hesabınız başarıyla oluşturuldu! Hoş geldiniz, #{name}."
+    else
+      flash.now[:alert] = "Lütfen adınızı ve e-posta adresinizi eksiksiz girin."
+      @tab = "register"
       render :login, status: :unprocessable_entity
     end
   end
@@ -31,7 +48,7 @@ class MusteriController < ApplicationController
   def logout
     session[:customer_email] = nil
     session[:customer_name] = nil
-    redirect_to musteri_path, notice: "Müşteri oturumunuz güvenli bir şekilde kapatıldı."
+    redirect_to root_path, notice: "Müşteri oturumunuz güvenli bir şekilde kapatıldı."
   end
 
   def create
