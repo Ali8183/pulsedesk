@@ -24,10 +24,8 @@ class CommentsController < ApplicationController
     )
 
     if @comment.save
-      # Zendesk Standardı: Temsilci yanıt verdiğinde bilet 'status_pending' (Müşteri Yanıtı Bekleniyor) durumuna geçer
-      if @ticket.status_new? || @ticket.status_open?
-        @ticket.transition_to!(:status_pending)
-      end
+      @ticket.reload
+      @ticket.transition_to!(:status_pending) if @ticket.can_transition_to?(:status_pending)
 
       redirect_to @ticket, notice: "Yanıtınız başarıyla kaydedildi ve müşteriye iletildi."
     else

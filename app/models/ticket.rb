@@ -77,7 +77,7 @@ class Ticket < ApplicationRecord
   def sla_remaining_seconds
     return 0 if sla_due_at.blank?
 
-    (sla_due_at - Time.current).to_i
+    [0, (sla_due_at - Time.current).to_i].max
   end
 
   # Arayüz renk göstergesi:

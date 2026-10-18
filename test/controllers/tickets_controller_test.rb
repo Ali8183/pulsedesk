@@ -27,6 +27,11 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: /Müşteri Destek Masası/
   end
 
+  test "eski /tickets adresi doğrudan /temsilci adresine yönlendirir" do
+    get "/tickets"
+    assert_redirected_to "/temsilci"
+  end
+
   test "show sayfası bilet detaylarını ve SLA panelini gösterir" do
     get ticket_url(@ticket)
     assert_response :success

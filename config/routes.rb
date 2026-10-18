@@ -19,8 +19,10 @@ Rails.application.routes.draw do
   post   "temsilci/giris",           to: "sessions#create",     as: :temsilci_giris
   delete "temsilci/cikis",           to: "sessions#destroy",    as: :temsilci_cikis
 
+  get    "tickets",                  to: redirect("/temsilci")
+
   # Temsilci Bilet Operasyonları (CRUD, Durum Geçişi, Atama, SLA Zaman Makinesi)
-  resources :tickets do
+  resources :tickets, except: [:index] do
     member do
       patch :transition
       patch :assign

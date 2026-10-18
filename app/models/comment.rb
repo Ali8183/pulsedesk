@@ -38,7 +38,8 @@ class Comment < ApplicationRecord
   end
 
   def handle_agent_reply
-    # Temsilci ilk yanıtı verdiğinde yeni bilet 'açık' duruma geçer
+    ticket.update_column(:first_responded_at, Time.current) if ticket.first_responded_at.blank?
+
     if ticket.status_new?
       ticket.update!(
         status: :status_open,
