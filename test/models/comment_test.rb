@@ -17,22 +17,22 @@ class CommentTest < ActiveSupport::TestCase
   # 100 PUANLIK ÖZELLİK TESTİ: GRATITUDE GUARD (NEZAKET KORUMASI)
   # ============================================================
 
-  test "çözülmüş bilete müşteri teşekkür ettiğinde Gratitude Guard devreye girer ve bilet çözüldü kalır" do
+  test "çözülmüş bilete müşteri teşekkür ettiğinde Gratitude Guard devreye girer ve bilet kilitlenerek kapatılır" do
     # 1. Temsilci bileti açar ve çözer
     @ticket.transition_to!(:status_open)
     @ticket.transition_to!(:status_solved)
     assert @ticket.status_solved?
 
-    # 2. Müşteri sadece nezaket/teşekkür mesajı gönderir (Zendesk'te bu bilet açılırdı!)
+    # 2. Müşteri sadece nezaket/teşekkür mesajı gönderir
     comment = @ticket.comments.create!(
       author_name: @ticket.customer_name,
       author_role: "customer",
       body: "Çok teşekkür ederim, sayenizde problemim hemen çözüldü! Harikasınız."
     )
 
-    # 3. PulseDesk Doğrulaması:
+    # 3. PulseDesk Doğrulaması: Müşteri çözümü onayladığı için bilet kilitlenir (Closed)
     assert comment.is_gratitude?, "Yorum teşekkür olarak işaretlenmeli"
-    assert @ticket.reload.status_solved?, "Bilet 'Çözüldü' kalmaya devam etmeli, gereksiz yere açılmamalı"
+    assert @ticket.reload.status_closed?, "Bilet 'Kapatıldı' (Kilitli) duruma geçmeli, yaşam döngüsü tamamlanmalı"
     assert_equal 1, @ticket.gratitude_count
   end
 
@@ -41,7 +41,7 @@ class CommentTest < ActiveSupport::TestCase
     @ticket.transition_to!(:status_solved)
     assert @ticket.status_solved?
 
-    # Müşteri teşekkür etti ama 'ama hata devam ediyor' dedi
+    # Müşteri teşekkür etti ama 'ama hata devam ediyor' dedi (çözümü onaylamadı)
     comment = @ticket.comments.create!(
       author_name: @ticket.customer_name,
       author_role: "customer",
@@ -65,7 +65,7 @@ class CommentTest < ActiveSupport::TestCase
     assert @ticket.first_responded_at.present?
   end
 
-  test "kullanıcı şablonundaki 'Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!' mesajı Gratitude Guard tarafından korunur" do
+  test "kullanıcı şablonundaki 'Çok teşekkür ederim, elinize sağlık sorun tamamen çözüldü!' mesajı biletin kilitlenmesini sağlar" do
     @ticket.transition_to!(:status_open)
     @ticket.transition_to!(:status_solved)
 
@@ -76,10 +76,10 @@ class CommentTest < ActiveSupport::TestCase
     )
 
     assert comment.is_gratitude?, "Şablon mesajı teşekkür olarak tanınmalı"
-    assert @ticket.reload.status_solved?, "Bilet 'Çözüldü' olarak kalmalı"
+    assert @ticket.reload.status_closed?, "Bilet 'Kapatıldı' (Kilitli) olmalı ve tekrar açılmamalı"
   end
 
-  test "bekleyen (pending) bilete müşteri teşekkür ettiğinde bilet çözüldü durumuna geçer" do
+  test "bekleyen (pending) bilete müşteri teşekkür ettiğinde bilet kilitlenerek kapatılır" do
     @ticket.transition_to!(:status_open)
     @ticket.transition_to!(:status_pending)
 
@@ -90,6 +90,6 @@ class CommentTest < ActiveSupport::TestCase
     )
 
     assert comment.is_gratitude?
-    assert @ticket.reload.status_solved?
+    assert @ticket.reload.status_closed?
   end
 end

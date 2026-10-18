@@ -105,7 +105,7 @@ class MusteriController < ApplicationController
 
       if @comment.save
         if @comment.is_gratitude?
-          redirect_to musteri_ticket_path(@ticket), notice: "✨ Akıllı Nezaket Koruması: Teşekkür mesajınız kaydedildi. Bilet 'Çözüldü' durumunda tutuldu!"
+          redirect_to musteri_ticket_path(@ticket), notice: "🔒 Akıllı Nezaket Koruması: Çözüm onayınız ve teşekkürünüz kaydedildi. Talep başarıyla çözümlenerek kilitlendi (Arşivlendi)!"
         elsif @ticket.reload.status_open?
           redirect_to musteri_ticket_path(@ticket), alert: "⚠️ Sorununuzun devam ettiği algılandı. Bilet temsilcinin kuyruğuna yeniden 'Açık' olarak iletildi."
         else

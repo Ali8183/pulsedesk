@@ -111,7 +111,7 @@ class MusteriControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to musteri_ticket_url(@murat_ticket)
-    assert @murat_ticket.reload.status_solved?, "Nezaket koruması bileti çözüldü tutmalıdır"
+    assert @murat_ticket.reload.status_closed?, "Nezaket koruması bilet çözümünü onaylayarak bileti kilitler"
     assert_equal 1, @murat_ticket.gratitude_count
   end
 

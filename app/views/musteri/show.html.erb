@@ -102,8 +102,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
                 <div>
-                  <strong>Nezaket Koruması:</strong>
-                  Teşekkür mesajınız iletildi. Talebiniz çözülmüş olarak başarıyla korunuyor.
+                  <strong>Nezaket Koruması (Gratitude Guard):</strong>
+                  Teşekkür ve çözüm onayınız alındı. Talebiniz başarıyla çözümlenerek <strong>kilitlendi (arşivlendi)</strong>.
                 </div>
               </div>
             <% end %>
@@ -120,10 +120,11 @@
   <!-- Müşteri Yanıt Formu veya Arşiv Bilgisi -->
   <% if @ticket.status_closed? %>
     <div class="card" style="padding: 1.5rem; background: var(--bg-surface-subtle); text-align: center; border: 1px dashed var(--border-subtle);">
-      <div style="font-size: 1.3rem; margin-bottom: 0.35rem;">📦</div>
-      <strong style="color: var(--text-primary); font-size: 0.95rem;">Bu Destek Talebi Çözülerek Kapatılmıştır</strong>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.35rem;">
-        Talep tamamlandığı için arşivlenmiştir. Farklı bir konu veya sorunuz varsa <a href="<%= musteri_path %>#yeni-talep" style="color: var(--primary); font-weight: 600;">yeni bir destek talebi açabilirsiniz</a>.
+      <div style="font-size: 1.5rem; margin-bottom: 0.35rem;">🔒</div>
+      <strong style="color: var(--text-primary); font-size: 1rem;">Bu Destek Talebi Başarıyla Çözümlenmiş ve Kilitlenmiştir</strong>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.35rem; line-height: 1.5;">
+        Çözüm onayınız ve teşekkürünüz kaydedildi; talep başarıyla tamamlanarak arşive alındı.<br>
+        Farklı bir konu veya sorunuz varsa lütfen <a href="<%= musteri_path %>#yeni-talep" style="color: var(--primary); font-weight: 600;">yeni bir destek talebi açınız</a>.
       </p>
     </div>
   <% else %>

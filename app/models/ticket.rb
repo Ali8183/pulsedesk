@@ -22,8 +22,8 @@ class Ticket < ApplicationRecord
   # Durum geçiş matrisi (Aort Dilimi Durum Akışı)
   ALLOWED_TRANSITIONS = {
     "status_new"     => %w[status_open],
-    "status_open"    => %w[status_pending status_solved],
-    "status_pending" => %w[status_open status_solved],
+    "status_open"    => %w[status_pending status_solved status_closed],
+    "status_pending" => %w[status_open status_solved status_closed],
     "status_solved"  => %w[status_open status_closed],
     "status_closed"  => [] # Kapalı biletler değiştirilemez
   }.freeze
@@ -43,7 +43,9 @@ class Ticket < ApplicationRecord
     end
 
     self.status = target_str
-    self.resolved_at = Time.current if target_str == "status_solved"
+    if target_str == "status_solved" || (target_str == "status_closed" && resolved_at.blank?)
+      self.resolved_at ||= Time.current
+    end
     save!
   end
 
