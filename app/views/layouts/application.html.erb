@@ -38,11 +38,7 @@
         <% if is_customer_portal %>
           <!-- MÜŞTERİ TARAFI MENÜSÜ: ASLA TEMSİLCİ BİLGİSİ VEYA LİNKİ GÖSTERİLMEZ -->
           <% if customer_signed_in? %>
-            <a href="<%= musteri_path %>" class="nav-link active">
-              Taleplerim
-            </a>
-
-            <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
               <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
                 <strong style="color: var(--text-primary); display: block;"><%= current_customer_name %></strong>
                 <span style="color: var(--text-muted); font-size: 0.7rem;">Müşteri Hesabı</span>
@@ -60,17 +56,7 @@
         <% else %>
           <!-- TEMSİLCİ TARAFI MENÜSÜ: SADECE /temsilci VE BAĞLI SAYFALARDA -->
           <% if agent_signed_in? %>
-            <a href="<%= temsilci_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && params[:filter].blank? %>">
-              Tüm Talepler
-            </a>
-            <a href="<%= temsilci_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
-              Açık Kuyruk
-            </a>
-            <a href="<%= temsilci_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
-              SLA Alarmları
-            </a>
-
-            <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
               <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
                 <strong style="color: var(--text-primary); display: block;"><%= current_agent %></strong>
                 <span style="color: var(--text-muted); font-size: 0.7rem;"><%= current_agent_title %></span>

@@ -67,7 +67,7 @@
           <!-- Temsilci Atama / Değiştirme -->
           <% unless @ticket.status_closed? %>
             <%= form_with url: assign_ticket_path(@ticket), method: :patch, local: true, style: "display: inline-flex; gap: 0.4rem; align-items: center;" do |f| %>
-              <%= select_tag :agent_name, options_for_select([["Ahmet Kaya", "Ahmet Kaya"], ["Selin Yılmaz", "Selin Yılmaz"], ["Elif Tekin", "Elif Tekin"]], @ticket.assigned_agent), class: "form-control", style: "padding: 0.35rem 0.6rem; font-size: 0.82rem; width: auto;" %>
+              <%= select_tag :agent_name, options_for_select([["-- Temsilci Seçin --", ""], ["Ahmet Kaya", "Ahmet Kaya"], ["Selin Yılmaz", "Selin Yılmaz"], ["Elif Tekin", "Elif Tekin"]], @ticket.assigned_agent.presence || ""), class: "form-control", style: "padding: 0.35rem 0.6rem; font-size: 0.82rem; width: auto;" %>
               <button type="submit" class="btn btn-primary btn-sm">
                 <%= @ticket.assigned_agent.present? ? "Temsilciyi Değiştir" : "Temsilci Ata & Açık Yap" %>
               </button>

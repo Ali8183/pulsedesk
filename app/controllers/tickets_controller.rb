@@ -22,7 +22,7 @@ class TicketsController < ApplicationController
     when "open"
       @tickets = @tickets.where(status: %i[status_new status_open status_pending])
     when "solved"
-      @tickets = @tickets.where(status: :status_solved)
+      @tickets = @tickets.where(status: %i[status_solved status_closed])
     when "closed"
       @tickets = @tickets.where(status: :status_closed)
     when "breached"
@@ -32,6 +32,7 @@ class TicketsController < ApplicationController
     # İstatistikler (SaaS KPI Paneli)
     @total_count     = Ticket.count
     @open_count      = Ticket.where(status: %i[status_new status_open status_pending]).count
+    @solved_count    = Ticket.where(status: %i[status_solved status_closed]).count
     @breached_count  = Ticket.where(sla_breached: true).count
     @gratitude_saves = Ticket.sum(:gratitude_count)
   end
@@ -69,7 +70,7 @@ class TicketsController < ApplicationController
 
   # Temsilci Atama Aksiyonu
   def assign
-    agent = params[:agent_name]
+    agent = params[:agent_name].to_s.strip
     if agent.present?
       @ticket.assigned_agent = agent
       @ticket.status = :status_open if @ticket.status_new?

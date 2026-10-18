@@ -24,7 +24,7 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
   test "index sayfası /temsilci üzerinde başarıyla yüklenir" do
     get temsilci_url
     assert_response :success
-    assert_select "h1", text: /Müşteri Destek Masası/
+    assert_select "h1", text: /Temsilci Destek Masası/
   end
 
   test "eski /tickets adresi doğrudan /temsilci adresine yönlendirir" do

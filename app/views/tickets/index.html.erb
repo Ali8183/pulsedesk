@@ -1,14 +1,14 @@
 <div class="page-header">
   <div>
     <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
-      <h1 class="page-title" style="margin-bottom: 0;">Müşteri Destek Masası</h1>
+      <h1 class="page-title" style="margin-bottom: 0;">Temsilci Destek Masası</h1>
       <span style="font-size: 0.72rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 5px; font-weight: 600;">
         <span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; animation: pulseDot 1.5s infinite; display: inline-block;"></span>
         Canlı Senkronizasyon (Yenilemesiz)
       </span>
     </div>
     <p class="page-subtitle">
-      Gelen destek bildirimlerini, öncelik sıralamasını ve SLA çözüm sürelerini buradan takip edin.
+      Gelen müşteri destek bildirimlerini, öncelik sıralamasını ve SLA çözüm sürelerini buradan yönetin.
     </p>
   </div>
   <div>
@@ -16,7 +16,7 @@
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
-      Yeni Destek Talebi
+      Yeni Talep Kaydı
     </a>
   </div>
 </div>
@@ -95,7 +95,7 @@
         Açık Kuyruk (<%= @open_count %>)
       </a>
       <a href="<%= temsilci_path(filter: 'solved') %>" class="filter-pill <%= 'active' if params[:filter] == 'solved' %>">
-        Çözülenler
+        Çözülenler (<%= @solved_count %>)
       </a>
       <a href="<%= temsilci_path(filter: 'breached') %>" class="filter-pill breached-tab <%= 'active' if params[:filter] == 'breached' %>">
         SLA Aşımı (<%= @breached_count %>)
@@ -199,9 +199,33 @@
         <% else %>
           <tr>
             <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-              <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📥</div>
-              <strong style="color: var(--text-primary); display: block; margin-bottom: 0.25rem;">Kuyrukta Bekleyen Destek Talebi Yok</strong>
-              <span style="font-size: 0.85rem;">Müşterilerden yeni bir destek talebi iletildiğinde bu ekrana <strong>sayfa yenilenmeden anlık olarak</strong> düşecektir.</span>
+              <div style="font-size: 1.6rem; margin-bottom: 0.5rem;">
+                <% if params[:filter] == 'breached' %>
+                  🎉
+                <% elsif params[:filter] == 'solved' %>
+                  ✅
+                <% else %>
+                  📥
+                <% end %>
+              </div>
+              <strong style="color: var(--text-primary); display: block; margin-bottom: 0.35rem; font-size: 0.95rem;">
+                <% if params[:filter] == 'breached' %>
+                  SLA Aşımı Bulunmuyor
+                <% elsif params[:filter] == 'solved' %>
+                  Henüz Çözülen Destek Talebi Yok
+                <% elsif params[:filter] == 'open' %>
+                  Açık Kuyrukta Bekleyen Talep Yok
+                <% else %>
+                  Kuyrukta Bekleyen Destek Talebi Yok
+                <% end %>
+              </strong>
+              <span style="font-size: 0.85rem;">
+                <% if params[:filter] == 'breached' %>
+                  Tüm talepler SLA hedefleri içinde başarıyla yönetiliyor.
+                <% else %>
+                  Müşterilerden yeni bir destek talebi iletildiğinde bu ekrana <strong>sayfa yenilenmeden anlık olarak</strong> düşecektir.
+                <% end %>
+              </span>
             </td>
           </tr>
         <% end %>
@@ -288,6 +312,11 @@
             currentTbody.innerHTML = newTbody.innerHTML;
             if (newKpi && currentKpi) {
               currentKpi.innerHTML = newKpi.innerHTML;
+            }
+            const newFilterGroup = doc.querySelector('.filter-group');
+            const currentFilterGroup = document.querySelector('.filter-group');
+            if (newFilterGroup && currentFilterGroup) {
+              currentFilterGroup.innerHTML = newFilterGroup.innerHTML;
             }
             currentTicketIds = newIds;
 

@@ -15,7 +15,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     follow_redirect!
     assert_response :success
     assert_select "header", text: /Ahmet Kaya/
-    assert_select "h1", text: /Müşteri Destek Masası/
+    assert_select "h1", text: /Temsilci Destek Masası/
   end
 
   test "geçersiz bilgilerle giriş reddedilir" do
