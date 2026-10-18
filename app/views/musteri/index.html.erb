@@ -65,8 +65,14 @@
                   <a href="<%= musteri_ticket_path(ticket) %>" class="ticket-link">
                     <%= ticket.title %>
                   </a>
-                  <div style="font-size: 0.75rem; color: var(--text-muted);">
-                    İlgilenen Temsilci: <%= ticket.assigned_agent.presence || "Sıraya alındı (Atanıyor)" %>
+                  <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 2px;">
+                    <span>İlgilenen Temsilci: <strong><%= ticket.assigned_agent.presence || "Sıraya alındı (Atanıyor)" %></strong></span>
+                    <% unless ticket.status_solved? || ticket.status_closed? %>
+                      <span style="color: var(--border-strong);">•</span>
+                      <span class="live-sla-timer" data-due="<%= ticket.sla_due_at.iso8601 %>" style="color: #2563eb; font-weight: 600;">
+                        ⏱️ <span class="timer-text"><%= ticket.sla_remaining_seconds / 3600 %>s <%= sprintf('%02d', (ticket.sla_remaining_seconds % 3600) / 60) %>dk <%= sprintf('%02d', ticket.sla_remaining_seconds % 60) %>sn kaldı</span>
+                      </span>
+                    <% end %>
                   </div>
                 </td>
 
@@ -144,3 +150,79 @@
   </div>
 
 </div>
+
+<script>
+  (function() {
+    let pollInterval = null;
+    let timerInterval = null;
+
+    function updateCustomerSLATimers() {
+      const now = Date.now();
+      document.querySelectorAll('.live-sla-timer').forEach(el => {
+        const dueIso = el.getAttribute('data-due');
+        if (!dueIso) return;
+        const dueTime = new Date(dueIso).getTime();
+        const diffSec = Math.floor((dueTime - now) / 1000);
+
+        if (diffSec <= 0) {
+          el.innerHTML = '<span style="color: var(--danger); font-weight: 700;">⚠️ SLA Süresi Aşıldı</span>';
+        } else {
+          const hours = Math.floor(diffSec / 3600);
+          const mins = Math.floor((diffSec % 3600) / 60);
+          const secs = diffSec % 60;
+          const textEl = el.querySelector('.timer-text');
+          if (textEl) {
+            const hStr = hours > 0 ? `${hours}s ` : '';
+            const mStr = `${mins < 10 ? '0' : ''}${mins}dk `;
+            const sStr = `${secs < 10 ? '0' : ''}${secs}sn kaldı`;
+            textEl.textContent = `${hStr}${mStr}${sStr}`;
+          }
+        }
+      });
+    }
+
+    async function pollCustomerIndex() {
+      // Eğer kullanıcı form yazıyorsa kesme
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(window.location.href, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!response.ok) return;
+
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const newTbody = doc.querySelector('tbody');
+        const currentTbody = document.querySelector('tbody');
+
+        if (newTbody && currentTbody && newTbody.innerHTML !== currentTbody.innerHTML) {
+          currentTbody.innerHTML = newTbody.innerHTML;
+          updateCustomerSLATimers();
+        }
+      } catch (e) {
+        // Sessiz hata yakalama
+      }
+    }
+
+    timerInterval = setInterval(updateCustomerSLATimers, 1000);
+    updateCustomerSLATimers();
+
+    pollInterval = setInterval(pollCustomerIndex, 3000);
+
+    document.addEventListener('turbo:before-cache', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    }, { once: true });
+
+    window.addEventListener('beforeunload', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    });
+  })();
+</script>

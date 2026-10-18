@@ -159,16 +159,17 @@
                     Tamamlandı
                   </span>
                 <% elsif ticket.sla_breached? %>
-                  <span class="badge badge-breached">
+                  <span class="badge badge-breached" style="animation: pulseBreach 1.5s infinite;">
                     SLA Süresi Aşıldı
                   </span>
                 <% else %>
                   <% remaining = ticket.sla_remaining_seconds %>
                   <% hours = remaining / 3600 %>
                   <% mins = (remaining % 3600) / 60 %>
-                  <div style="font-weight: 600; font-size: 0.85rem; color: <%= ticket.sla_urgency_level == :warning ? 'var(--warning-text)' : 'var(--text-primary)' %>; display: inline-flex; align-items: center; gap: 4px;">
+                  <% secs = remaining % 60 %>
+                  <div class="live-sla-timer" data-due="<%= ticket.sla_due_at.iso8601 %>" style="font-weight: 600; font-size: 0.85rem; color: <%= ticket.sla_urgency_level == :warning ? 'var(--warning-text)' : 'var(--text-primary)' %>;">
                     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"/></svg>
-                    <%= hours %>s <%= mins %>dk kaldı
+                    <span class="timer-text"><%= "#{hours}s " if hours > 0 %><%= sprintf('%02d', mins) %>dk <%= sprintf('%02d', secs) %>sn kaldı</span>
                   </div>
                   <div style="font-size: 0.72rem; color: var(--text-muted);">
                     Hedef: <%= ticket.sla_due_at.strftime("%H:%M (%d.%m)") %>
@@ -200,7 +201,7 @@
             <td colspan="7" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
               <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📥</div>
               <strong style="color: var(--text-primary); display: block; margin-bottom: 0.25rem;">Kuyrukta Bekleyen Destek Talebi Yok</strong>
-              <span style="font-size: 0.85rem;">Müşteri portalından (<a href="/musteri" target="_blank" style="color: var(--primary); font-weight: 600;">/musteri</a>) yeni bir talep açıldığında bu ekrana <strong>sayfa yenilenmeden canlı olarak</strong> düşecektir.</span>
+              <span style="font-size: 0.85rem;">Müşteri portalından (<a href="/" target="_blank" style="color: var(--primary); font-weight: 600;">/ (Müşteri Girişi)</a>) yeni bir talep açıldığında bu ekrana <strong>sayfa yenilenmeden canlı olarak</strong> düşecektir.</span>
             </td>
           </tr>
         <% end %>
@@ -213,6 +214,7 @@
   (function() {
     let currentTicketIds = Array.from(document.querySelectorAll('tbody tr td:first-child')).map(td => td.innerText.trim());
     let pollInterval = null;
+    let timerInterval = null;
 
     function showToast(message) {
       const existing = document.querySelector('.toast-notification');
@@ -228,6 +230,37 @@
         toast.style.transform = 'translateY(15px)';
         setTimeout(() => toast.remove(), 400);
       }, 4000);
+    }
+
+    function updateLiveSLATimers() {
+      const now = Date.now();
+      document.querySelectorAll('.live-sla-timer').forEach(el => {
+        const dueIso = el.getAttribute('data-due');
+        if (!dueIso) return;
+        const dueTime = new Date(dueIso).getTime();
+        const diffSec = Math.floor((dueTime - now) / 1000);
+
+        if (diffSec <= 0) {
+          el.outerHTML = '<span class="badge badge-breached" style="animation: pulseBreach 1.5s infinite;">SLA Süresi Aşıldı</span>';
+        } else {
+          const hours = Math.floor(diffSec / 3600);
+          const mins = Math.floor((diffSec % 3600) / 60);
+          const secs = diffSec % 60;
+          const textEl = el.querySelector('.timer-text');
+          if (textEl) {
+            const hStr = hours > 0 ? `${hours}s ` : '';
+            const mStr = `${mins < 10 ? '0' : ''}${mins}dk `;
+            const sStr = `${secs < 10 ? '0' : ''}${secs}sn kaldı`;
+            textEl.textContent = `${hStr}${mStr}${sStr}`;
+          }
+
+          if (diffSec <= 1800) {
+            el.style.color = 'var(--danger)';
+          } else if (diffSec <= 3600) {
+            el.style.color = 'var(--warning-text)';
+          }
+        }
+      });
     }
 
     async function pollTickets() {
@@ -249,7 +282,7 @@
         if (newTbody && currentTbody) {
           const newIds = Array.from(newTbody.querySelectorAll('tr td:first-child')).map(td => td.innerText.trim());
 
-          // Yeni bilet kontrolü
+          // Yeni bilet kontrolü veya durum değişikliği
           const addedIds = newIds.filter(id => id && !currentTicketIds.includes(id));
           if (addedIds.length > 0 || newIds.join(',') !== currentTicketIds.join(',')) {
             currentTbody.innerHTML = newTbody.innerHTML;
@@ -264,6 +297,8 @@
               if (firstRow) firstRow.classList.add('ticket-row-new');
               showToast(`Yeni Destek Talebi Düştü! (${addedIds[0]})`);
             }
+
+            updateLiveSLATimers();
           }
         }
       } catch (e) {
@@ -271,9 +306,21 @@
       }
     }
 
-    // Her 2.5 saniyede bir kontrol et (Sayfa yenilemeye gerek kalmadan anında düşer)
+    // Her saniye sayaçları geriye işlet (yenilemesiz canlı sayaç)
+    timerInterval = setInterval(updateLiveSLATimers, 1000);
+    updateLiveSLATimers();
+
+    // Her 2.5 saniyede bir yeni bilet ve durum kontrolü yap
     pollInterval = setInterval(pollTickets, 2500);
-    document.addEventListener('turbo:before-cache', () => clearInterval(pollInterval), { once: true });
-    window.addEventListener('beforeunload', () => clearInterval(pollInterval));
+
+    document.addEventListener('turbo:before-cache', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    }, { once: true });
+
+    window.addEventListener('beforeunload', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    });
   })();
 </script>

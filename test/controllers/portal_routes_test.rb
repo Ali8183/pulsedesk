@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class HomeControllerTest < ActionDispatch::IntegrationTest
+class PortalRoutesTest < ActionDispatch::IntegrationTest
   test "ziyaretçi ana sayfaya (/) girdiğinde doğrudan müşteri destek portalı açılır" do
     get root_url
     assert_response :success

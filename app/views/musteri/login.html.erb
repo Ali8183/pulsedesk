@@ -147,8 +147,7 @@
     }
   }
 
-  // Sayfa yüklendiğinde veya sunucu parametresiyle sekme belirleme
-  document.addEventListener('DOMContentLoaded', function() {
+  function initCustomerTab() {
     <% if @tab == "register" %>
       switchCustomerTab('register');
     <% else %>
@@ -156,5 +155,8 @@
         switchCustomerTab('register');
       }
     <% end %>
-  });
+  }
+
+  document.addEventListener('DOMContentLoaded', initCustomerTab);
+  document.addEventListener('turbo:load', initCustomerTab);
 </script>

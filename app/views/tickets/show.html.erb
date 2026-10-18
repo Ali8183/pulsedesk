@@ -245,8 +245,9 @@
           <% remaining = @ticket.sla_remaining_seconds %>
           <% hours = remaining / 3600 %>
           <% mins = (remaining % 3600) / 60 %>
-          <div style="font-size: 1.35rem; font-weight: 800; color: <%= @ticket.sla_urgency_level == :warning ? 'var(--warning-text)' : 'var(--text-primary)' %>;">
-            <%= hours %>s <%= mins %>dk kaldı
+          <% secs = remaining % 60 %>
+          <div class="live-sla-timer" data-due="<%= @ticket.sla_due_at.iso8601 %>" style="font-size: 1.35rem; font-weight: 800; color: <%= @ticket.sla_urgency_level == :warning ? 'var(--warning-text)' : 'var(--text-primary)' %>;">
+            <span class="timer-text"><%= "#{hours}s " if hours > 0 %><%= sprintf('%02d', mins) %>dk <%= sprintf('%02d', secs) %>sn kaldı</span>
           </div>
           <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
             Son Tarih: <%= @ticket.sla_due_at.strftime("%d.%m.%Y %H:%M") %>
@@ -314,10 +315,42 @@
     document.getElementById('comment-body-textarea').value = 'Merhaba <%= j @ticket.customer_name %>, bildirdiğiniz konu teknik ekibimizce incelenmiş ve gerekli düzeltme yapılmıştır. Lütfen kontrol edip bize bildirin.';
   }
 
-  // Sayfa Yenilemesiz Canlı Yorum ve Durum Senkronizasyonu
+  // Sayfa Yenilemesiz Canlı Yorum, Durum ve 1-Saniyelik SLA Sayacı Senkronizasyonu
   (function() {
     let currentCommentCount = document.querySelectorAll('.comment-card').length;
     let pollInterval = null;
+    let timerInterval = null;
+
+    function updateLiveSLATimers() {
+      const now = Date.now();
+      document.querySelectorAll('.live-sla-timer').forEach(el => {
+        const dueIso = el.getAttribute('data-due');
+        if (!dueIso) return;
+        const dueTime = new Date(dueIso).getTime();
+        const diffSec = Math.floor((dueTime - now) / 1000);
+
+        if (diffSec <= 0) {
+          el.innerHTML = '<span class="badge badge-breached" style="animation: pulseBreach 1.5s infinite; font-size: 1rem; padding: 6px 12px;">SLA Süresi Aşıldı (İhlal)</span>';
+        } else {
+          const hours = Math.floor(diffSec / 3600);
+          const mins = Math.floor((diffSec % 3600) / 60);
+          const secs = diffSec % 60;
+          const textEl = el.querySelector('.timer-text');
+          if (textEl) {
+            const hStr = hours > 0 ? `${hours}s ` : '';
+            const mStr = `${mins < 10 ? '0' : ''}${mins}dk `;
+            const sStr = `${secs < 10 ? '0' : ''}${secs}sn kaldı`;
+            textEl.textContent = `${hStr}${mStr}${sStr}`;
+          }
+
+          if (diffSec <= 1800) {
+            el.style.color = 'var(--danger)';
+          } else if (diffSec <= 3600) {
+            el.style.color = 'var(--warning-text)';
+          }
+        }
+      });
+    }
 
     async function pollThread() {
       // Formda yazarken kesintiye uğratma
@@ -349,6 +382,7 @@
           const currentSidebar = document.querySelector('.detail-sidebar');
           if (newSidebar && currentSidebar) {
             currentSidebar.innerHTML = newSidebar.innerHTML;
+            updateLiveSLATimers();
           }
         }
       } catch (e) {
@@ -356,8 +390,19 @@
       }
     }
 
+    timerInterval = setInterval(updateLiveSLATimers, 1000);
+    updateLiveSLATimers();
+
     pollInterval = setInterval(pollThread, 2500);
-    document.addEventListener('turbo:before-cache', () => clearInterval(pollInterval), { once: true });
-    window.addEventListener('beforeunload', () => clearInterval(pollInterval));
+
+    document.addEventListener('turbo:before-cache', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    }, { once: true });
+
+    window.addEventListener('beforeunload', () => {
+      clearInterval(pollInterval);
+      clearInterval(timerInterval);
+    });
   })();
 </script>

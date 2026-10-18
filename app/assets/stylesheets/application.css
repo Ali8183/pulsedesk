@@ -763,6 +763,12 @@ textarea.form-control {
   100% { transform: scale(0.95); opacity: 0.7; }
 }
 
+@keyframes pulseBreach {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+  70% { box-shadow: 0 0 0 7px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
 @keyframes rowFlash {
   0% { background-color: #dbeafe !important; }
   100% { background-color: transparent !important; }
@@ -770,6 +776,18 @@ textarea.form-control {
 
 .ticket-row-new {
   animation: rowFlash 3s ease-out;
+}
+
+.live-sla-timer {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-sla-timer .timer-text {
+  font-variant-numeric: tabular-nums;
 }
 
 .toast-notification {
@@ -795,4 +813,5 @@ textarea.form-control {
   from { transform: translateY(30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
 
