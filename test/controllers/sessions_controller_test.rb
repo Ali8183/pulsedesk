@@ -31,7 +31,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "eski agent/login adresi /temsilci adresine yönlendirir" do
-    get agent_login_url
+    get "/agent/login"
     assert_redirected_to "/temsilci"
   end
 end

@@ -29,16 +29,13 @@ Rails.application.routes.draw do
     resources :comments, only: [:create]
   end
 
-  # URL Konsolidasyonu ve Geriye Dönük Uyumluluk (4 URL Karmaşasını Ortadan Kaldırır)
-  get    "agent/login",  to: redirect("/temsilci"), as: :agent_login
-  get    "agent_portal", to: redirect("/temsilci"), as: :agent_portal
+  # Geriye dönük yönlendirmeler
+  get    "agent/login",  to: redirect("/temsilci")
+  get    "agent_portal", to: redirect("/temsilci")
   post   "agent/login",  to: "sessions#create"
-  delete "agent/logout", to: "sessions#destroy", as: :agent_logout
+  delete "agent/logout", to: "sessions#destroy"
 
-  get  "portal",                   to: redirect("/musteri"), as: :customer_portal
-  get  "portal/new",               to: redirect("/musteri"), as: :portal
-  get  "portal/tickets/:id",       to: redirect("/musteri/talep/%{id}"), as: :portal_ticket
-  post "portal/tickets/:id/reply", to: "musteri#reply", as: :portal_reply
-  get  "musteri/sorgula",          to: redirect("/musteri"), as: :customer_lookup
+  get  "portal",       to: redirect("/musteri")
+  get  "portal/*path", to: redirect("/musteri")
 end
 
