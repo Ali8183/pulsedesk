@@ -8,6 +8,10 @@ class MusteriController < ApplicationController
       @tickets = Ticket.where("LOWER(customer_email) = ?", current_customer_email.downcase).order(created_at: :desc)
       @new_ticket = Ticket.new(customer_name: current_customer_name, customer_email: current_customer_email, priority: :urgent)
     else
+      # Müşteri giriş ekranına gelindiğinde eski yetkili oturum artıklarını temizle
+      session[:agent_name] = nil
+      session[:agent_email] = nil
+      session[:agent_title] = nil
       @tab = params[:tab] == "register" ? "register" : "login"
       render :login
     end
@@ -48,6 +52,9 @@ class MusteriController < ApplicationController
   def logout
     session[:customer_email] = nil
     session[:customer_name] = nil
+    session[:agent_name] = nil
+    session[:agent_email] = nil
+    session[:agent_title] = nil
     redirect_to root_path, notice: "Müşteri oturumunuz güvenli bir şekilde kapatıldı."
   end
 

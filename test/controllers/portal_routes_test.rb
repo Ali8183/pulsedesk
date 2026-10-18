@@ -11,7 +11,22 @@ class PortalRoutesTest < ActionDispatch::IntegrationTest
     assert_select "button#tab-btn-register", text: /Kayıt Ol/
   end
 
-  test "ziyaretçi /temsilci adresine girdiğinde doğrudan temsilci giriş sayfası açılır" do
+  test "müşteri giriş sayfasında temsilci menüsü, temsilci adı veya temsilci linkleri ASLA görünmez" do
+    # Temsilci olarak giriş yapılmış olsa bile ana sayfaya gidildiğinde temsilci menüsü sızmamalı
+    post temsilci_giris_url, params: { email: "selin@pulsedesk.com", password: "admin" }
+
+    get root_url
+    assert_response :success
+    assert_select "header .brand-tag", text: "Müşteri Portalı"
+    assert_select "header", text: /Tüm Talepler/, count: 0
+    assert_select "header", text: /Açık Kuyruk/, count: 0
+    assert_select "header", text: /SLA Alarmları/, count: 0
+    assert_select "header", text: /Selin Yılmaz/, count: 0
+    assert_select "header", text: /Temsilci Masası/, count: 0
+  end
+
+  test "müşteri portalı ziyaret edildikten sonra /temsilci adresine gidildiğinde doğrudan temsilci giriş ekranı açılır" do
+    get root_url
     get temsilci_url
     assert_response :success
     assert_select "h1", text: /Yetkili Temsilci Girişi/

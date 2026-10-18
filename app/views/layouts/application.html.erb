@@ -13,9 +13,11 @@
   </head>
 
   <body>
+    <% is_customer_portal = (controller_name == "musteri") %>
+
     <header class="navbar">
       <div style="display: flex; align-items: center; gap: 1rem;">
-        <a href="<%= agent_signed_in? ? temsilci_path : musteri_path %>" class="nav-brand">
+        <a href="<%= is_customer_portal ? root_path : temsilci_path %>" class="nav-brand">
           <div class="brand-icon-box">
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -24,58 +26,64 @@
           <div>
             <div class="brand-name">PulseDesk</div>
           </div>
-          <% if customer_signed_in? %>
+          <% if is_customer_portal %>
             <span class="brand-tag" style="background: #eff6ff; color: #2563eb; border-color: #bfdbfe;">Müşteri Portalı</span>
-          <% elsif agent_signed_in? %>
+          <% else %>
             <span class="brand-tag" style="background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe;">Temsilci Masası</span>
           <% end %>
         </a>
       </div>
 
       <nav class="nav-links">
-        <% if customer_signed_in? %>
-          <!-- MÜŞTERİ OTURUMU AÇIKKEN: SADECE MÜŞTERİ BİLGİSİ VE ÇIKIŞ -->
-          <a href="<%= musteri_path %>" class="nav-link active">
-            Taleplerim
-          </a>
+        <% if is_customer_portal %>
+          <!-- MÜŞTERİ TARAFI MENÜSÜ: ASLA TEMSİLCİ BİLGİSİ VEYA LİNKİ GÖSTERİLMEZ -->
+          <% if customer_signed_in? %>
+            <a href="<%= musteri_path %>" class="nav-link active">
+              Taleplerim
+            </a>
 
-          <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
-            <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
-              <strong style="color: var(--text-primary); display: block;"><%= current_customer_name %></strong>
-              <span style="color: var(--text-muted); font-size: 0.7rem;">Müşteri Hesabı</span>
+            <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
+              <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
+                <strong style="color: var(--text-primary); display: block;"><%= current_customer_name %></strong>
+                <span style="color: var(--text-muted); font-size: 0.7rem;">Müşteri Hesabı</span>
+              </div>
+              <%= button_to musteri_cikis_path, method: :delete, class: "btn btn-secondary btn-sm", style: "padding: 0.3rem 0.6rem; font-size: 0.75rem;", title: "Müşteri Oturumunu Kapat" do %>
+                Çıkış
+              <% end %>
             </div>
-            <%= button_to musteri_cikis_path, method: :delete, class: "btn btn-secondary btn-sm", style: "padding: 0.3rem 0.6rem; font-size: 0.75rem;", title: "Müşteri Oturumunu Kapat" do %>
-              Çıkış
-            <% end %>
-          </div>
-
-        <% elsif agent_signed_in? %>
-          <!-- TEMSİLCİ OTURUMU AÇIKKEN: SADECE TEMSİLCİ KUYRUĞU VE ÇIKIŞ -->
-          <a href="<%= temsilci_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && params[:filter].blank? %>">
-            Tüm Talepler
-          </a>
-          <a href="<%= temsilci_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
-            Açık Kuyruk
-          </a>
-          <a href="<%= temsilci_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
-            SLA Alarmları
-          </a>
-
-          <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
-            <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
-              <strong style="color: var(--text-primary); display: block;"><%= current_agent %></strong>
-              <span style="color: var(--text-muted); font-size: 0.7rem;"><%= current_agent_title %></span>
+          <% else %>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              Müşteri Destek Sistemi
             </div>
-            <%= button_to temsilci_cikis_path, method: :delete, class: "btn btn-secondary btn-sm", style: "padding: 0.3rem 0.6rem; font-size: 0.75rem;", title: "Temsilci Oturumunu Kapat" do %>
-              Çıkış
-            <% end %>
-          </div>
+          <% end %>
 
         <% else %>
-          <!-- GİRİŞ YAPILMAMIŞSA -->
-          <div style="font-size: 0.82rem; color: var(--text-muted);">
-            Kurumsal Destek Sistemi
-          </div>
+          <!-- TEMSİLCİ TARAFI MENÜSÜ: SADECE /temsilci VE BAĞLI SAYFALARDA -->
+          <% if agent_signed_in? %>
+            <a href="<%= temsilci_path %>" class="nav-link <%= 'active' if controller_name == 'tickets' && params[:filter].blank? %>">
+              Tüm Talepler
+            </a>
+            <a href="<%= temsilci_path(filter: 'open') %>" class="nav-link <%= 'active' if params[:filter] == 'open' %>">
+              Açık Kuyruk
+            </a>
+            <a href="<%= temsilci_path(filter: 'breached') %>" class="nav-link <%= 'danger-link' if params[:filter] == 'breached' %>">
+              SLA Alarmları
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 0.6rem; padding-left: 0.5rem; border-left: 1px solid var(--border-subtle);">
+              <div style="font-size: 0.78rem; text-align: right; line-height: 1.2;">
+                <strong style="color: var(--text-primary); display: block;"><%= current_agent %></strong>
+                <span style="color: var(--text-muted); font-size: 0.7rem;"><%= current_agent_title %></span>
+              </div>
+              <%= button_to temsilci_cikis_path, method: :delete, class: "btn btn-secondary btn-sm", style: "padding: 0.3rem 0.6rem; font-size: 0.75rem;", title: "Temsilci Oturumunu Kapat" do %>
+                Çıkış
+              <% end %>
+            </div>
+          <% else %>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">
+              Yetkili Personel Masası
+            </div>
+          <% end %>
         <% end %>
       </nav>
     </header>
